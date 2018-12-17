@@ -1,0 +1,85 @@
+#!/bin/sh
+
+vncstart() {
+export HOME=/home/vncserver
+vncgl=3398
+for aa in konsole konsole  ;do
+tee <<xp-vnc>$HOME/.vnc/xstartup
+while [ k = k ]; do
+"$aa" --fullscreen;sleep 14200;done
+xp-vnc
+chmod +x $HOME/.vnc/xstartup
+vncserver -geometry 1000x600 :$vncgl
+vncgl=$(expr "$vncgl" + 1 )
+sleep 2;done
+
+vnc=1
+for i in $(ls "$HOME/VirtualBox VMs") ;do
+tee <<xp-vnc>$HOME/.vnc/xstartup
+while [ k = k ]; do
+VBoxManage startvm "$i"
+sleep 133;done
+xp-vnc
+vncserver -geometry 970x540 :$vnc
+vnc=$(expr "$vnc" + 1 )
+sleep 2;done
+
+sleep 60
+
+while [ k = k ]; do
+case  `date +%H` in
+03*)
+vncserver -kill :3400
+vncserver -kill :3399
+vncserver -kill :3398
+sleep 2000
+;;
+*)sh "$0" run &
+exit ;;
+esac
+done
+}
+inst() {
+if [ ! -e /bin/okvncs ];then
+if [ $(id -u) != 0 ];then
+sudo bash "$0" "inst"
+exit;fi
+tee <<service>/etc/init.d/okvncs-d
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          okvncs-d
+# Required-Start:    \$remote_fs \$syslog
+# Required-Stop:     \$remote_fs \$syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      1
+# Short-Description: OKVNCs
+# Description:       Auto Start VNC Server By sjchenkan
+### END INIT INFO
+export PATH=/bin:/sbin:$PATH
+case "\$1" in
+start) sudo -u vncuser /bin/okvncs run 2>&1 >/tmp/okvncs.log &
+;;
+stop) echo not stop ;;
+esac
+service
+chmod +x /etc/init.d/okvncs-d
+if [ -x /sbin/chkconfig ];then
+chkconfig okvncs-d on
+elif [ -f /usr/sbin/update-rc.d ];then
+update-rc.d okvncs-d start 80 2 3 4 5 .;fi
+useradd vncuser -m -d /home/vncserver
+sudo apt-get install vnc4server \
+gcc virtualbox firefox wqy-h* konsole
+sudo cp -rf "$0" /bin/okvncs
+chmod 777 /bin/okvncs
+fi
+service okvncs-d start
+exit
+}
+case "$1" in
+ins)inst ;;
+run)vncstart ;;
+*)inst
+sudo -u vncuser  "$0" run 2>&1 >/dev/null &;;
+esac
+    
