@@ -26,7 +26,7 @@ anzhuang_sh='''#!nin/bash
 mkdir -p /usr/share/ok-mousekey
 cp %s /usr/share/ok-mousekey
 echo "#!/bin/bash
-python3 /usr/share/ok-mousekey/mou.py &
+python3 /usr/share/ok-mousekey/mousekey.py RUN >/dev/null &
 ">/usr/bin/mousekey
 chmod -R 777 /usr/share/ok-mousekey /usr/bin/mousekey
 tee<<desktop>/usr/share/autostart/mousekey.desktop
