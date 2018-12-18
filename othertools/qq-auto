@@ -1,0 +1,48 @@
+#!/bin/bash
+
+if [ -f ~/.qq.pass ];then
+  . ~/.qq.pass
+  else
+  echo "pp=QQ密码 \nxx850\nyy=515">~/.qq.pass
+  echo "请把QQ密码写入~/.qq.pass文件"
+  exit
+fi
+
+if [ "$pp" == "QQ密码" ];then
+  echo "请把QQ密码写入~/.qq.pass文件"
+  exit
+fi
+
+tee<<pyfile>/tmp/typ.py
+#!/usr/bin/python3
+import os,sys,	time
+from pynput.keyboard import Key,Controller
+jp=Controller()
+from pynput.mouse import Controller,Button
+sb=Controller()
+time.sleep(15)
+sb.position=($xx,$yy)
+sb.click(Button.left,1)
+jp.type('$pp')
+jp.press(Key.enter)
+jp.release(Key.enter)
+pyfile
+
+cd
+for i in .wine/drive_c/P*/T*/QQ/Bin/QQ.exe ;do
+  if [ -f /usr/bin/wine ];then
+    if [ -f "$i" ];then
+      python3 /tmp/typ.py &
+      wine "$i" &
+      exit
+    fi
+  fi
+done
+for u in .cxoffice/*/desktopdata/cxmenu/D*/腾讯QQ.lnk ;do
+  if [ -f "$u" ];then
+    python3 /tmp/typ.py &
+    sh "$u" &
+    exit
+  fi
+done
+
