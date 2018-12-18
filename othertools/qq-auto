@@ -38,7 +38,7 @@ for i in .wine/drive_c/P*/T*/QQ/Bin/QQ.exe ;do
     fi
   fi
 done
-for u in .cxoffice/*/desktopdata/cxmenu/D*/腾讯QQ.lnk ;do
+for u in .cxoffice/*/desktopdata/cxmenu/D*/腾讯QQ.lnk /usr/bin/win*qq ;do
   if [ -f "$u" ];then
     python3 /tmp/typ.py &
     sh "$u" &
