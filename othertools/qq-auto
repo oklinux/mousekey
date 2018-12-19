@@ -3,7 +3,7 @@
 if [ -f ~/.qq.pass ];then
   . ~/.qq.pass
   else
-  echo "pp=QQ密码 \nxx850\nyy=515">~/.qq.pass
+  echo "pp=QQ密码 \nxx850\nyy=515\nss=23">~/.qq.pass
   echo "请把QQ密码写入~/.qq.pass文件"
   exit
 fi
@@ -20,7 +20,7 @@ from pynput.keyboard import Key,Controller
 jp=Controller()
 from pynput.mouse import Controller,Button
 sb=Controller()
-time.sleep(15)
+time.sleep($ss)
 sb.position=($xx,$yy)
 sb.click(Button.left,1)
 jp.type('$pp')
