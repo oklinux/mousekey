@@ -32,16 +32,16 @@ cd
 for i in .wine/drive_c/P*/T*/QQ/Bin/QQ.exe ;do
   if [ -f /usr/bin/wine ];then
     if [ -f "$i" ];then
-      python3 /tmp/typ.py &
       wine "$i" &
+      python3 /tmp/typ.py &
       exit
     fi
   fi
 done
 for u in .cxoffice/*/desktopdata/cxmenu/D*/腾讯QQ.lnk /usr/bin/win*qq ;do
   if [ -f "$u" ];then
-    python3 /tmp/typ.py &
     sh "$u" &
+    python3 /tmp/typ.py &
     exit
   fi
 done
