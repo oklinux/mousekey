@@ -3,7 +3,7 @@
 if [ -f ~/.qq.pass ];then
   . ~/.qq.pass
   else
-  echo "pp=QQ密码 \nxx850\nyy=515\nss=23">~/.qq.pass
+  echo "pp=QQ密码 \nxx850\nyy=520\nss=23">~/.qq.pass
   echo "请把QQ密码写入~/.qq.pass文件"
   exit
 fi
@@ -22,7 +22,7 @@ from pynput.mouse import Controller,Button
 sb=Controller()
 time.sleep($ss)
 sb.position=($xx,$yy)
-sb.click(Button.left,1)
+sb.click(Button.left,2)
 jp.type('$pp')
 jp.press(Key.enter)
 jp.release(Key.enter)
@@ -32,17 +32,26 @@ cd
 for i in .wine/drive_c/P*/T*/QQ/Bin/QQ.exe ;do
   if [ -f /usr/bin/wine ];then
     if [ -f "$i" ];then
+     wine reboot.exe
       wine "$i" &
       python3 /tmp/typ.py &
       exit
     fi
   fi
 done
+okok() {
+for y in $(cat $1);do
+case $y in
+*/wine*)sh $(echo $y|tr -d "\"") reboot.exe ;;
+esac
+done    
+}
+
 for u in .cxoffice/*/desktopdata/cxmenu/D*/腾讯QQ.lnk /usr/bin/win*qq ;do
   if [ -f "$u" ];then
+    okok $u
     sh "$u" &
     python3 /tmp/typ.py &
     exit
   fi
 done
-
