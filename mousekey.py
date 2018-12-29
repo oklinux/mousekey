@@ -44,7 +44,7 @@ def kaiguanjian(cs):
   #鼠标导航开关
   global kaiguan
   global jp
-  from pynput.keyboard import Key,Controller  
+  from pynput.keyboard import Key,Controller
   jp = Controller()
   aj = Key
   if kaiguan != 2:
@@ -62,12 +62,12 @@ def kaiguanjian(cs):
       kaiguan=2
   else:
     kaiguan=0
-  
+
   if cs in 'Key.num_lock':
     kaiguan=1
-  
+
   return int(kaiguan)
-  
+
 #为检查依赖做准备。。。
 def zhixingJB(JMJB):
   JBWenjian=open('/dev/shm/testemp.py','w')
@@ -78,13 +78,14 @@ def zhixingJB(JMJB):
 
 #利用shell把本软件安装到系统中，并设置成随桌面启动。。。e
 def anzhuang():
-  if sys.argv[1] == 'setup':
+  cs1=sys.argv[1]
+  if cs1 == 'setup':
     az=open('setup.sh','w')
     az.write(anzhuang_sh)
     az.close()
     os.system('sudo bash ./setup.sh')
-    
-    
+
+
 #检查pynput依赖，如过未安装，就使用pip安装。
 def jianchaYL():
   test='''from pynput.mouse import *
@@ -92,11 +93,15 @@ import os,sys
 '''
   anzhuang()
   if zhixingJB(test) != 0:
+    if not os.path.isfile('/usr/bin/apt'):
+        os.system('sudo apt update')
+    elif not os.path.isfile('/usr/bin/apt-get'):
+        os.system('sudo sapt-get update')
     if not os.path.isfile('/usr/bin/pip3'):
       if os.path.isfile('/usr/bin/yum'):
         os.system('sudo yum install python3-pip python3-xlib')
       if os.path.isfile('/usr/bin/apt-get'):
-        os.system('sudo apt-get install python3-pip python3-xlib')
+        os.system('sudo apt-get install -y python3-pip python3-xlib')
       if os.path.isfile('/usr/bin/yum'):
         os.system('sudo dmf install python-pip python3-xlib')
     os.system('sudo pip3 install pynput')
@@ -110,7 +115,7 @@ def on_press(jian):
     kaiguanjian(format(jian))
     print(jian)
     #shubiao(format(jian))
-   
+
 def anjian(jan):
   if kaiguan == 1:
     return False
@@ -118,11 +123,11 @@ def anjian(jan):
 def anjian2(jan):
   if kaiguan == 0:
     return False
-  
+
 #持续侦听。。。
 def zhenting():
-  from pynput.keyboard import Key,Listener,Controller  
-  
+  from pynput.keyboard import Key,Listener,Controller
+
   while 0==0:
     if kaiguan == 0:
       with Listener(on_press=on_press,on_release=anjian) as listener:
@@ -130,7 +135,7 @@ def zhenting():
     if kaiguan == 1:
       with Listener(on_press=on_press,on_release=anjian2,suppress=True) as listener2:
         listener2.join()
-    
+
 #驱动鼠标
 def shubiao(jian):
   from pynput.mouse import Controller,Button
@@ -174,5 +179,3 @@ def shubiao(jian):
 if __name__ == '__main__':
   jianchaYL()
   zhenting()
-  
-  0
