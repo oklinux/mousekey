@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3on
+﻿a#!/usr/bin/env python3on
 #coding: utf-8
 sshuoming='''
 欧侃鼠标导航 0.1
@@ -96,7 +96,7 @@ import os,sys
     if not os.path.isfile('/usr/bin/apt'):
         os.system('sudo apt update')
     elif not os.path.isfile('/usr/bin/apt-get'):
-        os.system('sudo sapt-get update')
+        os.system('sudo apt-get update')
     if not os.path.isfile('/usr/bin/pip3'):
       if os.path.isfile('/usr/bin/yum'):
         os.system('sudo yum install python3-pip python3-xlib')
