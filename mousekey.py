@@ -31,7 +31,7 @@ python3 /usr/share/ok-mousekey/mousekey.py RUN >/dev/null &
 chmod -R 777 /usr/share/ok-mousekey /usr/bin/mousekey
 tee<<desktop>/usr/share/autostart/mousekey.desktop
 [Desktop Entry]
-Namer=mousekey
+Name=mousekey
 Exec=mousekey
 Icon=
 Type=Application
@@ -78,12 +78,12 @@ def zhixingJB(JMJB):
 
 #利用shell把本软件安装到系统中，并设置成随桌面启动。。。e
 def anzhuang():
-  cs1=sys.argv[1]
-  if cs1 == 'setup':
-    az=open('setup.sh','w')
-    az.write(anzhuang_sh)
-    az.close()
-    os.system('sudo bash ./setup.sh')
+  if sys.argv[1]:
+    if sys.argv[1] == 'setup':
+      az=open('setup.sh','w')
+      az.write(anzhuang_sh)
+      az.close()
+      os.system('sudo bash ./setup.sh')
 
 
 #检查pynput依赖，如过未安装，就使用pip安装。
