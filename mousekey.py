@@ -1,4 +1,4 @@
-﻿a#!/usr/bin/env python3on
+﻿#!/usr/bin/env python3on
 #coding: utf-8
 sshuoming='''
 欧侃鼠标导航 0.1
@@ -78,8 +78,8 @@ def zhixingJB(JMJB):
 
 #利用shell把本软件安装到系统中，并设置成随桌面启动。。。e
 def anzhuang():
-  if sys.argv[1]:
-    if sys.argv[1] == 'setup':
+  for cs in sys.argv:
+    if cs == 'setup':
       az=open('setup.sh','w')
       az.write(anzhuang_sh)
       az.close()
