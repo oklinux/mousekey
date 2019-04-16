@@ -7,7 +7,7 @@ shuru()
 [ -z "$pass" ] && shuru
 [ "$1" != auto ] && [ ! -z "$1" ] && srv=$1
 [ -z "$srv" ] && echo "server" && read srv
-[ "$srv" == d3 ] && srv=118.184.1.169
+[ "$srv" == d3 ] && srv=43.231.184.83
 [ "$srv" == lro ] && srv=103.235.222.153
 [ -z "$srv" ] && exit 1
 [ ! -z "$pass" ] && sed -i "/pptpmyvpndevice/d" /etc/ppp/chap-secrets
