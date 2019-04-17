@@ -49,7 +49,7 @@ shuru $1
 [ ! -x /bin/pptpsetup ] && sed -e '1,/perl\\pptpsetup/d' "$0" >/bin/pptpsetup &&   
 chmod +x /bin/pptpsetup
 pptpsetup --create pptpmyvpndevice --server $srv --username $user --password $pass --encrypt --start
-[ -f /sbin/ruote ] && ruote add default ppp0
+[ -f /sbin/route ] && route add default ppp0
 }
 
 zidong() {
