@@ -24,6 +24,7 @@ jp.release(Key.enter)
 pyfile
 
 python3 /tmp/typ.py &
+
 git status
 git commit -m 1
 git push -u origin master
