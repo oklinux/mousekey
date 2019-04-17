@@ -47,7 +47,7 @@ exit ;;
 esac
 
 
-for cs in $@ done ;do
+for cs in $@ wc ;do
 if [ ok4 == "ok$#" ];then
 case $cs  in
 ul)FILE=$4 ;;
@@ -55,8 +55,8 @@ dl)FILE=$3 ;;
 www) [ -f ~/.okssh/$cs ] . ~/.okssh/$cs
 scpdir="ck@www.linux-ren.org:$FILE" ;;
 d*) [ -f ~/.okssh/$cs ] && . ~/.okssh/$cs
-scpdir=$ssh ;;
-done)
+scpdir=$ssh:$FILE ;;
+wc)
 case $1 in
 ul)sshadd_a $2
 scp $3 $scpdir
