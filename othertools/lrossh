@@ -1,0 +1,69 @@
+#!/bin/bash
+
+sshpass() {
+tee<<pyfile>/tmp/typ.py
+#!/usr/bin/python3
+import os,sys,time
+from pynput.keyboard import Key,Controller
+jp=Controller()
+time.sleep(6)
+jp.type('$pass')
+jp.press(Key.enter)
+jp.release(Key.enter)
+pyfile
+
+python3 /tmp/typ.py &
+}
+
+sshadd() {
+[ ! -f ~/.okssh  ] && mkdir -p ~/.okssh
+tee <<sshtxet>~/.okssh/$1
+ssh=$2
+pass=$3
+sshtxet
+}
+sshadd_a() {
+ [ -f ~/.okssh/$1 ] && . ~/.okssh/$1
+if [ ok == ok$pass ];then 
+echo  user@server password
+read ssh pass && sshadd $1 $ssh $pass
+fi
+ sshpass
+}
+
+case $1 in
+add) if [ ok4 == "ok$#" ];then
+sshadd $2 $3 $4;fi
+exit ;;
+esac
+
+case $1  in
+www)sshadd_a www
+ssh ck@www.linux-ren.org 
+exit ;;
+d*)sshadd_a $1
+ssh $ssh 
+exit ;;
+esac
+
+
+for cs in $@ done ;do
+if [ ok4 == "ok$#" ];then
+case $cs  in
+ul)FILE=$4 ;;
+dl)FILE=$3 ;;
+www) [ -f ~/.okssh/$cs ] . ~/.okssh/$cs
+scpdir="ck@www.linux-ren.org:$FILE" ;;
+d*) [ -f ~/.okssh/$cs ] && . ~/.okssh/$cs
+scpdir=$ssh ;;
+done)
+case $1 in
+ul)sshadd_a $2
+scp $3 $scpdir
+exit ;;
+dl)sshadd_a $2
+scp $scpdir $4 
+exit ;;
+esac ;;
+esac
+fi;done
