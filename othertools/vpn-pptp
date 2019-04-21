@@ -13,11 +13,13 @@ shuru()
 [ ! -z "$pass" ] && sed -i "/pptpmyvpndevice/d" /etc/ppp/chap-secrets
 sed -i "/#/d" /etc/ppp/chap-secrets
 sed -i "/^$/d" /etc/ppp/chap-secrets
+if [ "$1" != auto ];then
 tee <<vpn>/etc/vpn-userscfg
 srv=$srv
 user=$user
 pass=$pass
 vpn
+fi
 }
 FHQ() {
 iptables -t  nat -I POSTROUTING -s 192.168.10.0/24 -o ppp0 -j MASQUERADE
