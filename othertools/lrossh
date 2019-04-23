@@ -52,7 +52,7 @@ if [ ok4 == "ok$#" ];then
 case $cs  in
 ul)FILE=$4 ;;
 dl)FILE=$3 ;;
-www) [ -f ~/.okssh/$cs ] . ~/.okssh/$cs
+www) [ -f ~/.okssh/$cs ] && . ~/.okssh/$cs
 scpdir="ck@www.linux-ren.org:$FILE" ;;
 d*) [ -f ~/.okssh/$cs ] && . ~/.okssh/$cs
 scpdir=$ssh:$FILE ;;

@@ -4,7 +4,8 @@ shuru()
 {
 [ "$1" != auto ] && echo "user password" && read user pass
 [ -z "$pass" ] && [ -f /etc/vpn-userscfg ] && . /etc/vpn-userscfg
-[ -z "$pass" ] && shuru
+[ "$!" == auto ] && [ -f /etc/vpn-userscfg ] && . /etc/vpn-userscfg
+v[ -z "$pass" ] && shuru
 [ "$1" != auto ] && [ ! -z "$1" ] && srv=$1
 [ -z "$srv" ] && echo "server" && read srv
 [ "$srv" == d3 ] && srv=43.231.184.83
@@ -53,7 +54,8 @@ chmod +x /bin/pptpsetup
 pptpsetup --create pptpmyvpndevice --server $srv --username $user --password $pass --encrypt --start
 if [ -f /sbin/route ] ;then
 route|while read ra rb rc rd re rf rg rh;do
-case $rh in
+case $ra $rh in
+default) ;;
 ppp*)route add default gw $ra $h;;
 esac
 done;fi
