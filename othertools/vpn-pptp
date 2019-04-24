@@ -5,7 +5,7 @@ shuru()
 [ "$1" != auto ] && echo "user password" && read user pass
 [ -z "$pass" ] && [ -f /etc/vpn-userscfg ] && . /etc/vpn-userscfg
 [ "$!" == auto ] && [ -f /etc/vpn-userscfg ] && . /etc/vpn-userscfg
-v[ -z "$pass" ] && shuru
+[ -z "$pass" ] && shuru
 [ "$1" != auto ] && [ ! -z "$1" ] && srv=$1
 [ -z "$srv" ] && echo "server" && read srv
 [ "$srv" == d3 ] && srv=43.231.184.83
