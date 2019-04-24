@@ -54,9 +54,9 @@ chmod +x /bin/pptpsetup
 pptpsetup --create pptpmyvpndevice --server $srv --username $user --password $pass --encrypt --start
 if [ -f /sbin/route ] ;then
 route|while read ra rb rc rd re rf rg rh;do
-case $ra $rh in
-default) ;;
-ppp*)route add default gw $ra $h;;
+case $ra$rh in
+default*) ;;
+*ppp*)route add default gw $ra $h;;
 esac
 done;fi
 }
