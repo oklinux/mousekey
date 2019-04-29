@@ -41,7 +41,7 @@ case $1  in
 www)sshadd_a www
 ssh ck@www.linux-ren.org 
 exit ;;
-d*)if [ ok2 == "ok$#" ];then
+d*)if [ ok1 == "ok$#" ];then
 sshadd_a $1
 ssh $ssh 
 exit;fi;;
