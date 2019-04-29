@@ -42,13 +42,13 @@ www)sshadd_a www
 ssh ck@www.linux-ren.org 
 exit ;;
 d*)if [ ok2 == "ok$#" ];then
-sshadd_a $1;fi
+sshadd_a $1
 ssh $ssh 
-exit ;;
+exit;fi;;
 esac
 
 
-for cs in $@ wc ;do
+for cs in $2 $1 ;do
 if [ ok4 == "ok$#" ];then
 case $cs  in
 ul)FILE=$4 ;;
