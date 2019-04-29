@@ -41,7 +41,8 @@ case $1  in
 www)sshadd_a www
 ssh ck@www.linux-ren.org 
 exit ;;
-d*)sshadd_a $1
+d*)if [ ok2 == "ok$#" ];then
+sshadd_a $1;fi
 ssh $ssh 
 exit ;;
 esac
