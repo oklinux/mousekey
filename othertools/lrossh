@@ -48,7 +48,7 @@ exit;fi;;
 esac
 
 
-for cs in $2 $1 ;do
+for cs in $2 $1 wc ;do
 if [ ok4 == "ok$#" ];then
 case $cs  in
 ul)FILE=$4 ;;
