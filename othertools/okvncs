@@ -25,7 +25,7 @@ vnc=$(expr "$vnc" + 1 )
 sleep 2;done
 
 sleep 60
-
+[ -f /etc/okoff ]&& . /etc/okoff
 while [ k = k ]; do
 case  `date +%H` in
 03*)
@@ -34,16 +34,18 @@ vncserver -kill :3399
 vncserver -kill :3398
 sleep 2000
 ;;
+$guanji)poweroff ;;
 *)sh "$0" run &
 exit ;;
 esac
 done
 }
 inst() {
-if [ ! -e /bin/okvncs ];then
 if [ $(id -u) != 0 ];then
-sudo bash "$0" "inst"
+sudo bash "$0" "$@"
 exit;fi
+[ poff == p$1 ]&& echo "guanji=$2">/etc/okoff
+if [ ! -e /bin/okvncs ];then
 tee <<service>/etc/init.d/okvncs-d
 #!/bin/bash
 ### BEGIN INIT INFO
@@ -69,7 +71,7 @@ elif [ -f /usr/sbin/update-rc.d ];then
 update-rc.d okvncs-d start 80 2 3 4 5 .;fi
 useradd vncuser -m -d /home/vncserver
 sudo apt-get install vnc4server \
-gcc virtualbox firefox wqy-h* konsole
+gcc firefox wqy-h* konsole
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
 fi
@@ -78,6 +80,7 @@ exit
 }
 case "$1" in
 ins)inst ;;
+off)inst off $2;;
 run)vncstart ;;
 *)inst
 sudo -u vncuser  "$0" run 2>&1 >/dev/null &;;
