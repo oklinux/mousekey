@@ -98,7 +98,11 @@ done
 if [ $(id -u) != 0 ];then
 sudo bash "$0" "$@"
 exit;fi
-[ ! -f /bin/vpn-pptp ] && cp "$0" /bin/vpn-pptp && chmod +x /bin/vpn-pptp
+
+case "$0" in
+vpn-pptp|/bin*) ;;
+*)cp "$0" /bin/vpn-pptp && chmod +x /bin/vpn-pptp  ;;
+esac
 
 
 case "$1" in
