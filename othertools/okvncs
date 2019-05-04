@@ -25,7 +25,6 @@ vnc=$(expr "$vnc" + 1 )
 sleep 2;done
 
 sleep 60
-[ -f /etc/okoff ]&& . /etc/okoff
 while [ k = k ]; do
 case  `date +%H` in
 03*)
@@ -34,7 +33,6 @@ vncserver -kill :3399
 vncserver -kill :3398
 sleep 2000
 ;;
-$guanji)poweroff ;;
 *)sh "$0" run &
 exit ;;
 esac
@@ -45,7 +43,10 @@ if [ $(id -u) != 0 ];then
 sudo bash "$0" "$@"
 exit;fi
 [ poff == p$1 ]&& echo "guanji=$2">/etc/okoff
-if [ ! -e /bin/okvncs ];then
+case "$0" in
+okvncs) ;;
+/bin/okvncs) ;;
+*) 
 tee <<service>/etc/init.d/okvncs-d
 #!/bin/bash
 ### BEGIN INIT INFO
@@ -57,9 +58,20 @@ tee <<service>/etc/init.d/okvncs-d
 # Short-Description: OKVNCs
 # Description:       Auto Start VNC Server By sjchenkan
 ### END INIT INFO
-export PATH=/bin:/sbin:$PATH
+export PATH=/bin:/sbin:\$PATH
+OKOFF() {
+[ -f /etc/okoff ]&& . /etc/okoff
+while [ k = k ]; do
+case  `date +%H` in
+\$guanji)poweroff ;;
+*) sleep 2000 ;;
+esac
+done
+echo [OK]
+}
 case "\$1" in
-start) sudo -u vncuser /bin/okvncs run 2>&1 >/tmp/okvncs.log &
+start) OKOFF &
+sudo -u vncuser /bin/okvncs run 2>&1 >/tmp/okvncs.log &
 ;;
 stop) echo not stop ;;
 esac
@@ -74,8 +86,9 @@ sudo apt-get install vnc4server \
 gcc firefox wqy-h* konsole
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
-fi
 service okvncs-d start
+;;
+esac
 exit
 }
 case "$1" in
