@@ -62,7 +62,7 @@ export PATH=/bin:/sbin:\$PATH
 OKOFF() {
 [ -f /etc/okoff ]&& . /etc/okoff
 while [ k = k ]; do
-case  `date +%H` in
+case \`date +%H\` in
 \$guanji)poweroff ;;
 *) sleep 2000 ;;
 esac
