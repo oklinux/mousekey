@@ -45,11 +45,19 @@ d*)if [ ok1 == "ok$#" ];then
 sshadd_a $1
 ssh $ssh 
 exit;fi;;
+setup)
+if [ $(id -u) != 0 ];then
+sudo bash "$0" "$@"
+exit;fi
+case "$0" in
+lrossh|/bin*) ;;
+*)cp "$0" /bin/lrossh && chmod +x /bin/lrossh ;;
+esac ;;
 esac
 
 
 for cs in $1 $2 wc ;do
-if [ ok4 == "ok$#" ];then
+if [ "ok4" == "ok$#" ];then
 case $cs in
 ul)FILE=$4 ;;
 dl)FILE=$3 ;;
@@ -60,19 +68,11 @@ scpdir=$ssh:$FILE ;;
 wc)
 case $1 in
 ul)sshadd_a $2
-scp $3 $scpdir
+scp $3 $scpdi、r
 exit ;;
 dl)sshadd_a $2
 scp $scpdir $4 
 exit ;;
-setup)
-if [ $(id -u) != 0 ];then
-sudo bash "$0" "$@"
-exit;fi
-case "$0" in
-lrossh|/bin*) ;;
-*)cp "$0" /bin/lrossh && chmod +x /bin/lrossh ;;
-esac ;;
 esac ;;
 esac
 fi;done
