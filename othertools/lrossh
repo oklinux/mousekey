@@ -48,9 +48,9 @@ exit;fi;;
 esac
 
 
-for cs in $2 $1 wc ;do
+for cs in $1 $2 wc ;do
 if [ ok4 == "ok$#" ];then
-case $cs  in
+case $cs in
 ul)FILE=$4 ;;
 dl)FILE=$3 ;;
 www) [ -f ~/.okssh/$cs ] && . ~/.okssh/$cs
@@ -65,6 +65,14 @@ exit ;;
 dl)sshadd_a $2
 scp $scpdir $4 
 exit ;;
+setup)
+if [ $(id -u) != 0 ];then
+sudo bash "$0" "$@"
+exit;fi
+case "$0" in
+lrossh|/bin*) ;;
+*)cp "$0" /bin/lrossh && chmod +x /bin/lrossh ;;
+esac ;;
 esac ;;
 esac
 fi;done
