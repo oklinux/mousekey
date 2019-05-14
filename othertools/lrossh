@@ -68,7 +68,7 @@ scpdir=$ssh:$FILE ;;
 wc)
 case $1 in
 ul)sshadd_a $2
-scp $3 $scpdi、r
+scp $3 $scpdir
 exit ;;
 dl)sshadd_a $2
 scp $scpdir $4 
