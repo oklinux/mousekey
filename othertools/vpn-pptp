@@ -36,21 +36,22 @@ iptables-save
 zf() {
 
 ip addr|grep global\ eth0|while read LINK ip peer gay global pppdev ;do
-yip=$(echo $ip|sed -e 's:/*::g')
+yip=$(echo $ip|sed -e 's:/2.::g')
 iptables -t nat -A PREROUTING -p tcp --dport $1 -j DNAT --to-destination $2:$3
 iptables -t nat -A PREROUTING -p udp --dport $1 -j DNAT --to-destination $2:$3
 iptables -t nat -A PREROUTING -p tcp -d $2 --dport $3 -j SNAT --to-source $yip
 iptables -t nat -A PREROUTING -p udp -d $2 --dport $3 -j SNAT --to-source $yip
 break
 done
-iptables-save
+#iptables-save
 }
 
 zf1() {
 case $# in
-1) [ -f /etc/vpnportcfg ] . /etc/vpnportcfg
+1) [ -f /etc/vpnportcfg ]&& . /etc/vpnportcfg
 if [ -z $vport ];then
 vport=100
+echo vport=$vport >/etc/vpnportcfg 
 else
 vport=$(expr $vport + 10 )
 echo vport=$vport >/etc/vpnportcfg ;fi
