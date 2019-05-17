@@ -25,11 +25,44 @@ fi
 FHQ() {
 iptables -t  nat -I POSTROUTING -s 192.168.10.0/24 -o ppp0 -j MASQUERADE
 iptables -t  nat -A POSTROUTING -s 192.168.10.0/24 -o eth0 -j MASQUERADE
-iptables -t  nat -A POSTROUTING -s 192.168.10.0/24 -o ppp0 -j MASQUERADE
 ip addr|grep global\ ppp0|while read LINK ip peer gay global pppdev ;do
 # diptables -t net -I POSTROUTING -s 192.168.10.0/24 -o ppp0 -t SNAT --to-source $ip 
 break
 done
+iptables-save
+
+}
+
+zf() {
+
+ip addr|grep global\ eth0|while read LINK ip peer gay global pppdev ;do
+yip=$(echo $ip|sed -e 's:/*::g')
+iptables -t nat -A PREROUTING -p tcp --dport $1 -j DNAT --to-destination $2:$3
+iptables -t nat -A PREROUTING -p udp --dport $1 -j DNAT --to-destination $2:$3
+iptables -t nat -A PREROUTING -p tcp -d $2 --dport $3 -j SNAT --to-source $yip
+iptables -t nat -A PREROUTING -p udp -d $2 --dport $3 -j SNAT --to-source $yip
+break
+done
+iptables-save
+}
+
+zf1() {
+case $# in
+1) [ -f /etc/vpnportcfg ] . /etc/vpnportcfg
+if [ -z $vport ];then
+vport=100
+else
+vport=$(expr $vport + 10 )
+echo vport=$vport >/etc/vpnportcfg ;fi
+zf $vport\21 $1 21
+zf $vport\22 $1 22
+zf $vport\80 $1 80
+zf $vport\66 $1 3366
+zf $vport\59 $1 5901
+zf $vport\98 $1 9298
+;;
+3)zf $1 $2 $3;;
+esac
 }
 
 fwq1() {
@@ -107,12 +140,13 @@ esac
 
 case "$1" in
 auto) zidong &;;
+zf)zf1 $2 $3 $4;;
 iptables) FHQ ;;
 defsrv)  fwq1 ;;
 *) khd  "$1";
 esac
  
-	
+
 exit 0
 #perl\pptpsetup
 #!/usr/bin/perl
