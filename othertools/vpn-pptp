@@ -23,15 +23,20 @@ vpn
 fi
 }
 FHQ() {
-iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ppp0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE
 iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o eth0 -j MASQUERADE
+iptables -A INPUT -s 192.168.0.0/24 -j ACCEPT
+iptables -A INPUT -s 192.168.10.0/24 -j ACCEPT
+iptables -A OUTPUT -s 192.168.0.0/24 -j ACCEPT
+iptables -A OUTPUT -s 192.168.10.0/24 -j ACCEPT
 ip addr|grep global\ eth0|while read LINK ip peer gay global pppdev ;do
 yip=$(echo $ip|sed -e 's:/2.::g')
+iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j SNAT --to-source $yip 
 iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -j SNAT --to-source $yip 
 break
 done
-iptables-save
-
+iptables-save >/etc/null
+service iptables restart
 }
 
 zf() {
