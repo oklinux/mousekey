@@ -23,10 +23,11 @@ vpn
 fi
 }
 FHQ() {
-iptables -t  nat -I POSTROUTING -s 192.168.10.0/24 -o ppp0 -j MASQUERADE
-iptables -t  nat -A POSTROUTING -s 192.168.10.0/24 -o eth0 -j MASQUERADE
-ip addr|grep global\ ppp0|while read LINK ip peer gay global pppdev ;do
-# diptables -t net -I POSTROUTING -s 192.168.10.0/24 -o ppp0 -t SNAT --to-source $ip 
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ppp0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o eth0 -j MASQUERADE
+ip addr|grep global\ eth0|while read LINK ip peer gay global pppdev ;do
+yip=$(echo $ip|sed -e 's:/2.::g')
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -j SNAT --to-source $yip 
 break
 done
 iptables-save
@@ -34,7 +35,8 @@ iptables-save
 }
 
 zf() {
-
+cxzf=$(iptables -t nat -vnL|grep $2:$3)
+if [ -z "$cxzf" ];then
 ip addr|grep global\ eth0|while read LINK ip peer gay global pppdev ;do
 yip=$(echo $ip|sed -e 's:/2.::g')
 iptables -t nat -A PREROUTING -p tcp --dport $1 -j DNAT --to-destination $2:$3
@@ -43,6 +45,7 @@ iptables -t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j SNAT --to-source $yip
 iptables -t nat -A POSTROUTING -p udp -d $2 --dport $3 -j SNAT --to-source $yip
 break
 done
+fi
 #iptables-save
 }
 
