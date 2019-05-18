@@ -45,8 +45,8 @@ iptables -t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j SNAT --to-source $yip
 iptables -t nat -A POSTROUTING -p udp -d $2 --dport $3 -j SNAT --to-source $yip
 break
 done
-fi
-#iptables-save
+iptables-save
+fi  
 }
 
 zf1() {
