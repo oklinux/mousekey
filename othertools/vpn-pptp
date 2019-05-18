@@ -35,7 +35,7 @@ iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j SNAT --to-source $yip
 iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -j SNAT --to-source $yip 
 break
 done
-iptables-save >/etc/null
+service iptables save
 service iptables restart
 }
 
@@ -50,7 +50,8 @@ iptables -t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j SNAT --to-source $yip
 iptables -t nat -A POSTROUTING -p udp -d $2 --dport $3 -j SNAT --to-source $yip
 break
 done
-iptables-save
+service iptables save
+service iptables restart
 fi  
 }
 
