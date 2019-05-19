@@ -34,8 +34,8 @@ sed -i "/$setip/c $setip=1" /etc/sysctl.conf
 sysctl -p
 ip addr|grep global\ eth|while read LINK ip peer gay global pppdev ;do
 yip=$(echo $ip|sed -e 's:/..::g')
-iptables -A INPUT -d $yip -dport 3300:3400 -j DROP
-iptables -A INPUT -d $yip -dport 445 -j DROP
+iptables -A INPUT -d $yip --dport 3300:3400 -j DROP
+iptables -A INPUT -d $yip --dport 445 -j DROP
 done
 service iptables save
 service iptables restart
