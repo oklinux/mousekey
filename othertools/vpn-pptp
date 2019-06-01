@@ -77,6 +77,22 @@ zf $vport\98 $1 9298
 esac
 }
 
+YH() {
+case $# in
+0)sed -n "/   pptpd/p" /etc/ppp/chap-secrets
+echo "User Password?"&& read u p
+[ -z "$p" ] && exit
+i="*" ;;
+2)u="$1" p="$2" i="*";;
+3)u="$1" p="$2" i="$3";;
+1)sed -i "/$1   pptpd/d" /etc/ppp/chap-secrets
+exit ;;
+esac
+sed -i "/$1   pptpd/d" /etc/ppp/chap-secrets
+echo "$u    pptpd   $p  $i">>/etc/ppp/chap-secrets
+}
+
+
 fwq1() {
 [ -f /etc/ppp/options.pptpd ] && OPTIONS=/etc/ppp/options.pptpd
 [ -f /etc/ppp/pptpd-options ] && OPTIONS=/etc/ppp/pptpd-options
@@ -90,6 +106,12 @@ remoteip 192.168.10.150-230,192.168.10.245
 cfg
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
 sysctl -p
+sj=$(date +%H)
+YH zj$sj1 $$78$sj 192.168.10.241
+YH zj$sj2 $$78$sj 192.168.10.242
+YH zj$sj3 $$78$sj 192.168.10.243
+YH zj$sj4 $$78$sj 192.168.10.244
+YH zj$sj1 $$78$sj 192.168.10.245
 }
 
 khd () {
@@ -155,6 +177,7 @@ auto) zidong &;;
 zf)zf1 $2 $3 $4;;
 iptables) FHQ ;;
 defsrv)  fwq1 ;;
+srvuser)YH $2 $3;;
 *) khd  "$1";
 esac
  
