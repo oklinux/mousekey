@@ -10,6 +10,7 @@ shuru()
 [ -z "$srv" ] && echo "server" && read srv
 [ "$srv" == d3 ] && srv=43.231.184.83
 [ "$srv" == lro ] && srv=103.235.222.153
+[ -z "$routed" ] && echo "Default Route?(y/n)" && read routed
 [ -z "$srv" ] && exit 1
 [ ! -z "$pass" ] && sed -i "/pptpmyvpndevice/d" /etc/ppp/chap-secrets
 sed -i "/#/d" /etc/ppp/chap-secrets
@@ -17,8 +18,9 @@ sed -i "/^$/d" /etc/ppp/chap-secrets
 if [ "$1" != auto ];then
 tee <<vpn>/etc/vpn-userscfg
 srv=$srv
-\user=$user
+user=$user
 pass=$pass
+routed=$routed
 vpn
 fi
 }
@@ -97,9 +99,9 @@ chmod +x /bin/pptpsetup
 pptpsetup --create pptpmyvpndevice --server $srv --username $user --password $pass --encrypt --start
 if [ -f /sbin/route ] ;then
 route|while read ra rb rc rd re rf rg rh;do
-case $ra$rh in
+case $ra$routed$rh in
 default*) ;;
-*ppp*)route add default gw $ra $h;;
+*yppp*)route add default gw $ra $h;;
 esac
 done;fi
 }
