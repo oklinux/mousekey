@@ -85,10 +85,10 @@ echo "Username  and Password?"&& read u p
 i="*" ;;
 2)u="$1" p="$2" i="*";;
 3)u="$1" p="$2" i="$3";;
-1)sed -i "/$1   pptpd/d" /etc/ppp/chap-secrets
+1)sed -i "/$1 .*pptpd .*/d" /etc/ppp/chap-secrets
 exit ;;
 esac
-sed -i "/$1   pptpd/d" /etc/ppp/chap-secrets
+sed -i "/$u .*pptpd .*/d" /etc/ppp/chap-secrets
 echo "$u    pptpd   $p  $i">>/etc/ppp/chap-secrets
 }
 
