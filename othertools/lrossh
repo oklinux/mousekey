@@ -17,18 +17,19 @@ python3 /tmp/typ.py &
 
 sshadd() {
 [ ! -f ~/.okssh  ] && mkdir -p ~/.okssh
+[ -z "$port" ] &&port=22
 tee <<sshtxet>~/.okssh/$1
 ssh=$2
-pass=$3
+port=$3
 sshtxet
 }
 sshadd_a() {
  [ -f ~/.okssh/$1 ] && . ~/.okssh/$1
 if [ ok == ok$pass ];then 
-echo  user@server password
-read ssh pass && sshadd $1 $ssh $pass
+echo  user@server port
+read ssh port && sshadd $1 $ssh $port
+ssh-copy-id "$ssh"
 fi
- sshpass
 }
 
 case $1 in
@@ -37,13 +38,13 @@ sshadd $2 $3 $4;fi
 exit ;;
 esac
 
-case $1  in
+case $1 in
 www)sshadd_a www
 ssh ck@www.linux-ren.org 
 exit ;;
 d*)if [ ok1 == "ok$#" ];then
 sshadd_a $1
-ssh $ssh 
+ssh -p $port $ssh 
 exit;fi;;
 setup)
 if [ $(id -u) != 0 ];then
@@ -68,10 +69,10 @@ scpdir=$ssh:$FILE ;;
 wc)
 case $1 in
 ul)sshadd_a $2
-scp $3 $scpdir
+scp -P $port $3 $scpdir
 exit ;;
 dl)sshadd_a $2
-scp $scpdir $4 
+scp -P $port $scpdir $4 
 exit ;;
 esac ;;
 esac
