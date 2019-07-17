@@ -21,6 +21,7 @@ tee <<sshtxet>~/.okssh/$1
 ssh=$2
 port=$3
 sshtxet
+ssh-copy-id "$2"
 }
 sshadd_a() {
  [ -f ~/.okssh/$1 ] && . ~/.okssh/$1
@@ -28,7 +29,6 @@ sshadd_a() {
 if [ ok == ok$ssh ];then 
 echo  user@server port
 read ssh port && sshadd $1 $ssh $port
-ssh-copy-id "$ssh"
 fi
 }
 
