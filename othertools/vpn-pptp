@@ -31,6 +31,7 @@ iptables -A INPUT -s 0.0.0.0/24 -j ACCEPT
 iptables -A INPUT -s 192.168.10.0/24 -j ACCEPT
 iptables -A FORWARD -s 0.0.0.0/24 -j ACCEPT
 iptables -A FORWARD -s 192.168.10.0/24 -j ACCEPT
+[ -f /etc/vpnportcfg ]&& . /etc/vpnportcfg
 setip="net.ipv4.ip_forward"
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
 sysctl -p
@@ -48,34 +49,44 @@ service iptables restart
 zf() {
 cxzf=$(iptables -t nat -vnL|grep $2:$3)
 if [ -z "$cxzf" ];then
+tee <<tttt>>/etc/vpnportcfg
 iptables -t nat -A PREROUTING -p tcp --dport $1 -j DNAT --to-destination $2:$3
 iptables -t nat -A PREROUTING -p udp --dport $1 -j DNAT --to-destination $2:$3
 iptables -t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j MASQUERADE
 iptables -t nat -A POSTROUTING -p udp -d $2 --dport $3 -j MASQUERADE
+tttt
+[ -f /etc/vpnportcfg ]&& . /etc/vpnportcfg
 service iptables save
 service iptables restart
 fi  
 }
 
+
 zf1() {
 case $# in
 1) [ -f /etc/vpnportcfg ]&& . /etc/vpnportcfg
-if [ -z $vport ];then
-vport=100
-echo vport=$vport >/etc/vpnportcfg 
+cxzf=$([ -f /etc/vpnportcfg ]&& cat /etc/vpnportcfg|grep $1 )
+if [ ! -z "$cxzf" ];then
+exit
+elif [ -z $vport ];then
+    vport=100
+echo vport=$vport >>/etc/vpnportcfg 
 else
-vport=$(expr $vport + 10 )
-echo vport=$vport >/etc/vpnportcfg ;fi
+vport=$(expr $vport + 1 )
+[ -f /etc/vpnportcfg ]&& sed -i '/vport=/d' /etc/vpnportcfg
+echo vport=$vport >>/etc/vpnportcfg ;fi
 zf $vport\21 $1 21
 zf $vport\22 $1 22
 zf $vport\80 $1 80
 zf $vport\36 $1 3306
+zf $vport\89 $1 3389
 zf $vport\59 $1 5901
 zf $vport\98 $1 9298
 ;;
 3)zf $1 $2 $3;;
 esac
 }
+
 
 YH() {
 case $# in
@@ -163,6 +174,8 @@ done
 }
 
 if [ $(id -u) != 0 ];then
+echo "Sudo Password:"&& read mm
+echo $mm|sudo -S echo
 sudo bash "$0" "$@"
 exit;fi
 
