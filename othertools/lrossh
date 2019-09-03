@@ -31,6 +31,39 @@ echo  user@server port
 read ssh port && sshadd $1 $ssh $port
 fi
 }
+vncadd() {
+[ ! -f ~/.okssh  ] && mkdir -p ~/.okssh
+ [ -f ~/.okssh/$1 ] && . ~/.okssh/$1
+if [ -z "$vnc" ];then
+if [ -z "$2" ];then 
+echo  server 
+read vnc  
+else vnc="$2";fi
+tee <<sshtxet>~/.okssh/$1
+vnc=$vnc
+port=$port
+sshtxet
+tee <<desk>~/桌面/RD-$1.desktop
+[Desktop Entry]
+Exec=/usr/bin/krdc $1
+GenericName[zh_CN]=远程 $1
+GenericName=远程 $1
+Name[zh_CN]=W远程 $1
+Name=RDP & VNC $1
+Path=
+StartupNotify=false
+StartupWMClass=wps
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=
+desk
+fi
+
+}
 
 case $1 in
 add) if [ ok4 == "ok$#" ];then
@@ -41,14 +74,16 @@ exit ;;
 esac
 
 case $1 in
-www)sshadd_a www ck@www.linux-ren.org 22
+www)sshadd_a www ok@www.linux-ren.org.cn 22
 [ -z "$port" ] &&port=22
-ssh ck@www.linux-ren.org
+ssh ok@www.linux-ren.org.cn
 exit ;;
 d*)if [ ok1 == "ok$#" ];then
 sshadd_a $1
 ssh -p $port $ssh 
 exit;fi;;
+v*) vncadd $1 $2
+krdc $vnc ;;
 setup)
 if [ $(id -u) != 0 ];then
 sudo bash "$0" "$@"
@@ -66,7 +101,7 @@ case $cs in
 ul)FILE=$4 ;;
 dl)FILE=$3 ;;
 www) [ -f ~/.okssh/$cs ] && . ~/.okssh/$cs
-scpdir="ck@www.linux-ren.org:$FILE" ;;
+scpdir="ok@www.linux-ren.org.cn:$FILE" ;;
 d*) [ -f ~/.okssh/$cs ] && . ~/.okssh/$cs
 scpdir=$ssh:$FILE ;;
 wc)
