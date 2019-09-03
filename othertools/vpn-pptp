@@ -116,7 +116,14 @@ localip 192.168.10.199
 remoteip 192.168.10.150-230,192.168.10.245
 cfg
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
-sysctl -p
+sysctl -p 
+for a in apt-get apt yum dnf ;do
+type -p $a && $a install pptpd && break
+done
+type -p systemctl && systemctl enable pptpd
+type -p chkconfig && chkconfig pptpd on
+type -p update-rc.d &&  update-rc.d pptpd enable
+
 sj=$(date +%H)
 YH zj$sj\1 $$78$sj 192.168.10.241
 YH zj$sj\2 $$78$sj 192.168.10.242
