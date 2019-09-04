@@ -17,15 +17,16 @@ python3 /tmp/typ.py &
 
 sshadd() {
 [ ! -f ~/.okssh  ] && mkdir -p ~/.okssh
+[ -z "$3" ] &&port=22
 tee <<sshtxet>~/.okssh/$1
 ssh=$2
-port=$3
+port=$3$port
 sshtxet
-ssh-copy-id "$2"
+ssh-copy-id "$2" -p $3$port
 }
+
 sshadd_a() {
  [ -f ~/.okssh/$1 ] && . ~/.okssh/$1
-[ -z "$port" ] &&port=22
 if [ ok == ok$ssh ];then 
 echo  user@server port
 read ssh port && sshadd $1 $ssh $port

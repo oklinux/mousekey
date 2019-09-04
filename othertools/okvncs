@@ -88,13 +88,13 @@ update-rc.d okvncs-d start 80 2 3 4 5 .;fi
 useradd vncuser -m -d /home/vncserver
 for a in apt-get apt yum dnf ;do
 type -p $a && sudo $a install vnc4server \
-gcc firefox wqy-h* konsole xrdp && break
+gcc firefox wqy-h* konsole xrdp  xrdp-pulseaudio* && break
 done 
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
 service okvncs-d start
 mm=ok$$ ;echo $mm
-sudo -u vncuser vncpasswd <<txt
+su vncuser -c vncpasswd <<txt
 $mm
 $mm
 txt

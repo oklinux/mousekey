@@ -167,7 +167,9 @@ service
 chmod +x /etc/init.d/okvpn
 if [ -x /sbin/chkconfig ];then
 chkconfig okvpn on
-elif [ -f /usr/sbin/update-rc.d ];then
+elif type -p systemf ;then
+systemcttl enable okvpn
+elif [ -f /usr/sbin/updateeli-rc.d ];then
 update-rc.d okvpn start 80 2 3 4 5 . stop 80 1 .;fi
 
 
