@@ -107,10 +107,10 @@ scpdir=$ssh:$FILE ;;
 wc)
 case $1 in
 ul)sshadd_a $2
-scp -P $port $3 $scpdir
+scp -r -P $port $3 $scpdir
 exit ;;
 dl)sshadd_a $2
-scp -P $port $scpdir $4 
+scp -r -P $port $scpdir $4 
 exit ;;
 esac ;;
 esac

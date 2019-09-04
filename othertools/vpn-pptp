@@ -91,7 +91,7 @@ esac
 YH() {
 case $# in
 0)sed -n "/   pptpd/p" /etc/ppp/chap-secrets
-echo "Username  and Password?"&& read u p
+echo "Username and Password?"&& read u p
 [ -z "$p" ] && exit
 i="*" ;;
 2)u="$1" p="$2" i="*";;
