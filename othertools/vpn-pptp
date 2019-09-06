@@ -42,8 +42,11 @@ iptables -A INPUT -p udp --dport 100:1445 -j DROP
 ip addr|grep global\ eth|while read LINK ip peer gay global pppdev ;do
 yip=$(echo $ip|sed -e 's:/..::g')
 done
-service iptables save
-service iptables restart
+iptables-save >/etc/network/iptables.up.rules
+iptables-restore</etc/network/iptables.up.rules
+iptables-apply
+modprobe ip_tables
+
 }
 
 zf() {
@@ -56,9 +59,11 @@ iptables -t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j MASQUERADE
 iptables -t nat -A POSTROUTING -p udp -d $2 --dport $3 -j MASQUERADE
 tttt
 [ -f /etc/vpnportcfg ]&& . /etc/vpnportcfg
-service iptables save
-service iptables restart
 fi  
+iptables-save >/etc/network/iptables.up.rules
+iptables-restore</etc/network/iptables.up.rules
+iptables-apply
+modprobe ip_tables
 }
 
 
