@@ -30,7 +30,7 @@ if [ -f /etc/vpnportcfg ];then
 cxb=$(iptables-save|grep "192.168.10.0/24")
 [ -z "$cxb" ]&& . /etc/vpnportcfg
 fi
-sziptables "'-t nat -A POSTROUTING -s 0.0.0.0/24 -j MASQUERADE" 
+sziptables "-t nat -A POSTROUTING -s 0.0.0.0/24 -j MASQUERADE" 
 sziptables "-t nat -A POSTROUTING -s 192.168.10.0/24 -j MASQUERADE"
 sziptables "-A INPUT -s 0.0.0.0/24 -j ACCEPT"
 sziptables "-A INPUT -s 192.168.10.0/24 -j ACCEPT"
@@ -46,9 +46,10 @@ sysctl -p
 ip addr|grep global\ eth|while read LINK ip peer gay global pppdev ;do
 yip=$(echo $ip|sed -e 's:/..::g')
 done
+cd /etc/network
 iptables-save >/etc/network/iptables.up.rules
 iptables-restore</etc/network/iptables.up.rules
-iptables-apply *&
+iptables-apply 2>&1 >/dev/null &
 modprobe ip_tables
 
 }
@@ -74,9 +75,10 @@ sziptables "-t nat -A PREROUTING -p udp --dport $1 -j DNAT --to-destination $2:$
 sziptables "-t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j MASQUERADE"
 sziptables "-t nat -A POSTROUTING -p udp -d $2 --dport $3 -j MASQUERADE"
 
+cd /etc/network
 iptables-save >/etc/network/iptables.up.rules
 iptables-restore</etc/network/iptables.up.rules
-iptables-apply &
+iptables-apply 2>&1 >/dev/null &
 modprobe ip_tables
 }
 
