@@ -1,4 +1,5 @@
 #!/bin/bash
+#!/bin/bash
 
 shuru()
 {
@@ -25,44 +26,57 @@ vpn
 fi
 }
 FHQ() {
-iptables -t nat -A POSTROUTING -s 0.0.0.0/24 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -j MASQUERADE
-iptables -A INPUT -s 0.0.0.0/24 -j ACCEPT
-iptables -A INPUT -s 192.168.10.0/24 -j ACCEPT
-iptables -A FORWARD -s 0.0.0.0/24 -j ACCEPT
-iptables -A FORWARD -s 192.168.10.0/24 -j ACCEPT
-[ -f /etc/vpnportcfg ]&& . /etc/vpnportcfg
+if [ -f /etc/vpnportcfg ];then
+cxb=$(iptables-save|grep "192.168.10.0/24")
+[ -z "$cxb" ]&& . /etc/vpnportcfg
+fi
+sziptables "'-t nat -A POSTROUTING -s 0.0.0.0/24 -j MASQUERADE" 
+sziptables "-t nat -A POSTROUTING -s 192.168.10.0/24 -j MASQUERADE"
+sziptables "-A INPUT -s 0.0.0.0/24 -j ACCEPT"
+sziptables "-A INPUT -s 192.168.10.0/24 -j ACCEPT"
+sziptables "-A FORWARD -s 0.0.0.0/24 -j ACCEP"T
+sziptables "-A FORWARD -s 192.168.10.0/24 -j ACCEPT"""
+for i in 81:110 112:442 444:1720 1726:3388 3390:5900 ;do
+sziptables "-A INPUT -p tcp --dport $i -j DROP"
+sziptables "-A INPUT -p udp --dport $i -j DROP"
+done
 setip="net.ipv4.ip_forward"
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
 sysctl -p
-iptables -A INPUT -p tcp --dport 3100:5500 -j DROP
-iptables -A INPUT -p tcp --dport 100:1445 -j DROP
-iptables -A INPUT -p udp --dport 3100:5500 -j DROP
-iptables -A INPUT -p udp --dport 100:1445 -j DROP
 ip addr|grep global\ eth|while read LINK ip peer gay global pppdev ;do
 yip=$(echo $ip|sed -e 's:/..::g')
 done
 iptables-save >/etc/network/iptables.up.rules
 iptables-restore</etc/network/iptables.up.rules
-iptables-apply
+iptables-apply *&
 modprobe ip_tables
 
 }
 
-zf() {
-cxzf=$(iptables -t nat -vnL|grep $2:$3)
+sziptables() {
+cxzf=$(iptables-save)
+for p in $1 ;do
+case "$p" in
+-*) ;;
+*)cxzf=$(echo "$cxzf"|grep "$p")  
 if [ -z "$cxzf" ];then
-tee <<tttt>>/etc/vpnportcfg
-iptables -t nat -A PREROUTING -p tcp --dport $1 -j DNAT --to-destination $2:$3
-iptables -t nat -A PREROUTING -p udp --dport $1 -j DNAT --to-destination $2:$3
-iptables -t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j MASQUERADE
-iptables -t nat -A POSTROUTING -p udp -d $2 --dport $3 -j MASQUERADE
-tttt
-[ -f /etc/vpnportcfg ]&& . /etc/vpnportcfg
-fi  
+echo "iptables $1">>/etc/vpnportcfg
+iptables $1
+break
+fi;;
+esac
+done
+}
+zf() {
+echo localhoost:$1 to $2:$3
+sziptables "-t nat -A PREROUTING -p tcp --dport $1 -j DNAT --to-destination $2:$3"
+sziptables "-t nat -A PREROUTING -p udp --dport $1 -j DNAT --to-destination $2:$3"
+sziptables "-t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j MASQUERADE"
+sziptables "-t nat -A POSTROUTING -p udp -d $2 --dport $3 -j MASQUERADE"
+
 iptables-save >/etc/network/iptables.up.rules
 iptables-restore</etc/network/iptables.up.rules
-iptables-apply
+iptables-apply &
 modprobe ip_tables
 }
 
