@@ -104,8 +104,10 @@ exit
 }
 xrdp() {
 tee <<xxrdp>~/.Xsession
+#!/bin/bash
+
 for i in startxfce4 startkde konsole ;do
-type -p $i && $i && break
+type -p \$i && \$i && break
 done
 xxrdp
 }
