@@ -46,10 +46,10 @@ port=$port
 sshtxet
 tee <<desk>~/桌面/RD-$1.desktop
 [Desktop Entry]
-Exec=/usr/bin/krdc $1
+Exec=/usr/bin/lrossh $1
 GenericName[zh_CN]=远程 $1
 GenericName=远程 $1
-Name[zh_CN]=W远程 $1
+Name[zh_CN]=远程 $1
 Name=RDP & VNC $1
 Path=
 StartupNotify=false
@@ -75,9 +75,9 @@ exit ;;
 esac
 
 case $1 in
-www)sshadd_a www ok@www.linux-ren.org.cn 22
+www)sshadd_a www ok@www.linuxren.org.cn 22
 [ -z "$port" ] &&port=22
-ssh ok@www.linux-ren.org.cn
+ssh ok@www.linuxren.org.cn
 exit ;;
 d*)if [ ok1 == "ok$#" ];then
 sshadd_a $1

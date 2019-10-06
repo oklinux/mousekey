@@ -49,6 +49,10 @@ case "$0" in
 okvncs) ;;
 /bin/okvncs) ;;
 *) 
+for a in apt-get apt yum dnf ;do
+type -p $a && sudo $a install vnc4server \
+gcc firefox wqy-h* konsole xrdp  xrdp-pulseaudio* && break
+done 
 tee <<service>/etc/init.d/okvncs-d
 #!/bin/bash
 ### BEGIN INIT INFO
@@ -81,15 +85,12 @@ service
 chmod +x /etc/init.d/okvncs-d
 if [ -x /sbin/chkconfig ];then
 chkconfig okvncs-d on
-elif type -p systemcttl ;then
-systemcttl enable okvncs-d
 elif [ -f /usr/sbin/update-rc.d ];then
-update-rc.d okvncs-d start 80 2 3 4 5 .;fi
+update-rc.d okvncs-d start 80 2 3 4 5 . stop 20 1 .
+update-rc.d okvncs-d enable
+elif type -p systemcttl ;then
+systemcttl enable okvncs-d ;fi
 useradd vncuser -m -d /home/vncserver
-for a in apt-get apt yum dnf ;do
-type -p $a && sudo $a install vnc4server \
-gcc firefox wqy-h* konsole xrdp  xrdp-pulseaudio* && break
-done 
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
 service okvncs-d start
