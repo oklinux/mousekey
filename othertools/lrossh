@@ -46,7 +46,7 @@ port=$port
 sshtxet
 tee <<desk>~/桌面/RD-$1.desktop
 [Desktop Entry]
-Exec=/usr/bin/lrossh $1
+Exec=/bin/lrossh $1
 GenericName[zh_CN]=远程 $1
 GenericName=远程 $1
 Name[zh_CN]=远程 $1
