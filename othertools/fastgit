@@ -1,11 +1,12 @@
 #!/bin/bash
-
-if [ -f ~/.gituserpass ];then
-  . ~/.gituserpass
+remote=$1
+[ -z $remote ]&& remote=origin
+if [ -f ~/.gituserpass$1 ];then
+  . ~/.gituserpass$1
 else
   echo Github User and Password?
   read U P
-  echo "U=$U \nP=$P">~/.gituserpass
+  echo "U=$U \nP=$P">~/.gituserpass$1
 fi
 
 tee<<pyfile>/tmp/typ.py
@@ -27,4 +28,4 @@ python3 /tmp/typ.py &
 
 git status
 git commit -m 1
-git push -u origin master
+git push -u $remote master
