@@ -87,9 +87,9 @@ if [ -x /sbin/chkconfig ];then
 chkconfig okvncs-d on
 elif [ -f /usr/sbin/update-rc.d ];then
 update-rc.d okvncs-d start 80 2 3 4 5 . stop 20 1 .
-update-rc.d okvncs-d enable
-elif type -p systemcttl ;then
-systemcttl enable okvncs-d ;fi
+update-rc.d okvncs-d enable ;fi
+if type -p systemctl ;then
+systemctl enable okvncs-d ;fi
 useradd vncuser -m -d /home/vncserver
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
