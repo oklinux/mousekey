@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 vncstart() {
 export HOME=/home/vncserver
@@ -44,7 +44,7 @@ inst() {
 if [ $(id -u) != 0 ];then
 sudo bash "$0" "$@"
 exit;fi
-[ poff == p$1 ]&& echo "guanji=$2">/etc/okoff
+[ "poff" == "p$1" ]&& echo "guanji=$2">/etc/okoff
 case "$0" in
 okvncs) ;;
 /bin/okvncs) ;;
