@@ -41,6 +41,7 @@ esac
 done
 }
 inst() {
+deb="vnc4server gcc firefox wqy-h* konsole xrdp  xrdp-pulseaudio*"
 if [ $(id -u) != 0 ];then
 sudo bash "$0" "$@"
 exit;fi
@@ -48,11 +49,11 @@ exit;fi
 case "$0" in
 okvncs) ;;
 /bin/okvncs) ;;
-*) 
+*)
+for d in $deb ;do
 for a in apt-get apt yum dnf ;do
-type -p $a && sudo $a install vnc4server \
-gcc firefox wqy-h* konsole xrdp  xrdp-pulseaudio* && break
-done 
+type -p $a && sudo $a install $d -y && break
+done;done
 tee <<service>/etc/init.d/okvncs-d
 #!/bin/bash
 ### BEGIN INIT INFO
