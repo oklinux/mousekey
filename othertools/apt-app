@@ -1,0 +1,325 @@
+
+#!/bin/bash
+#!/bin/bash
+
+defcnf() {
+if [ -f /etc/okapps ];then
+. /etc/okapps
+else
+tee <<okcnf>/etc/okapps
+MC=OKLinux
+JC=lroapps
+LX=app
+ZZ=lroapps
+BB=2.0
+FWQ=
+DH=
+BJFWQ=okapps.oukan.online
+SSHFWQ="okapps@oukan.online"
+ML2=/home/wwwroot/$BJFWQ
+ML=/home/wwwroot/$ZZ
+JX="
+
+"
+okcnf
+. /etc/okapps
+fi
+cnf() {
+for cnf in $ML/.okapps* ;do
+if [ -f $cnf ];then
+. $cnf
+fi
+done
+}
+
+mirapt() {
+mkdir -p $ML/mirr/$FWQ
+mount -o bind $ML/$JC $ML/mirr/$FWQ
+
+if [ ! -z "$FWQ" -a ! -z "$DH" ];then
+JX="
+deb http://$FWQ/ $DH main restricted universe multiverse
+deb http://$FWQ/ $DH-security main restricted universe multiverse
+deb http://$FWQ/ $DH-updates main restricted universe multiverse
+deb http://$FWQ/ $DH-proposed main restricted universe multiverse
+deb http://$FWQ/ $DH-backports main restricted universe multiverse
+
+deb-src http://$FWQ/ $DH main restricted universe multiverse
+deb-src http://$FWQ/ $DH-security main restricted universe multiverse
+deb-src http://$FWQ/ $DH-updates main restricted universe multiverse
+deb-src http://$FWQ/ $DH-proposed main restricted universe multiverse
+deb-src http://$FWQ/ $DH-backports main restricted universe multiverse
+"
+fi
+for i in i386 amd64 ;do
+tee <<file>/etc/apt/mirror.list
+############# config ##################
+
+set base_path $ML/mirr
+set defaultarch $i
+set mirror_path  $ML/mirr
+set nthreads     25
+set _tilde 0
+
+$JX
+#
+clean http://$FWQ
+file
+[ ! type -p apt-mirror ]&& apt install apt-mirror
+apt-mirror
+done
+umount $ML/$FWQ
+chown -R www:www $ML
+chmod -R 755 $ML
+yapt
+
+}
+
+DQML=$(pwd)
+
+[ -f ~/.gpgkeycnf ]&& . ~/.gpgkeycnf
+
+yapt() {
+mkdir -p $1/$3-$2 ;cd $1
+tee <<FXTXET>$3-$2/Release
+in: $MC
+Label: $MC
+Suite: $JC
+Version:$BB
+Codename: $3-$2/
+Description:　$MC $BB
+MD5Sum:
+FXTXET
+case $3 in
+os)
+if [ -d dists ];then
+echo "">$3-$2/Packages
+for p in dists/$DH/*/*-$2/Packages dists/$DH*/*/*-$2/Packages;do
+cat $p >> $3-$2/Packages
+done
+for p in dists/$DH/*/source/Sources dists/$DH*/*/source/Sources;do
+cat $p >> $3-$2/Sources
+done
+else
+if [ ! -f $3-$2/Packages ];then
+dpkg-scanpackages . /dev/null >$3-$2/Packages 
+dpkg-scansources . /dev/null >$3-$2/Sources
+fi;fi
+cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
+cat $3-$2/Sources|gzip -c9>$3-$2/Sources.gz
+apt-ftparchive release $3-$2 >>$3-$2/Release
+rm $3-$2/InRelease $3-$2/Release.gpg -rf
+;;
+×)
+echo "正在生成软件包列表，请耐心等待。。。。。。"
+dpkg-scanpackages deb-$2 /dev/null >$3-$2/Packages 
+cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
+apt-ftparchive release $3-$2 >>$3-$2/Release
+rm $3-$2/InRelease $3-$2/Release.gpg -rf
+mkdir -p ../tmp/deb-$2
+mv -f deb-$2/* ../tmp/deb-$1/
+sed -n '/Filename/p' $3-$2/Packages|while read a b;do
+mv -f ../tmp/$b deb-$2/
+done
+;;
+esac
+
+# gpg -abs --default-key $gpgkey -o $3-$2/Release.gpg $3-$2/Release
+# gpg --clearsign --default-key $gpgkey -o $3-$2/InRelease $3-$2/Release
+gpg -abs  -o $3-$2/Release.gpg $3-$2/Release
+gpg --clearsign -o $3-$2/InRelease $3-$2/Release
+yuan="deb http://$BJFWQ/$1 $3-$2/
+$yuan"
+
+echo 列表生成完毕！
+cd ..
+}
+
+jlapt() {
+if [ ! -e /usr/bin/dpkg-scanpackages ];then
+apt-get -y install dpkg-dev ;fi
+case $LX in
+os)
+yapt $JC mips os
+yapt $JC amd64 os
+yapt $JC i386 os
+yapt $JC amd64 update;;
+app)
+yapt $JC amd64 app
+yapt $JC i386 app
+yapt $JC loongson mips;;
+esac
+
+if [ ! -f .$JC-linux.DB ];then
+gpg -a --export -a >$JC/$JC-linux.pub
+gpg -a --export-secret-keys -a >.$JC-linux.sub
+gpg --export-ownertrust >.$JC-linux.DB ;fi
+tee <<rtf>$JC/$JC-apt.list
+#$ZZ desktop v$BB
+
+$yuan
+
+rtf
+
+
+case $0 in
+./*|/bin/*)
+tee <<shell>$JC-up-deb.sh
+#!/bin/bash
+if [ ! -f ~/.ssh/\$(basename \$0 ) ];then
+ssh-copy-id $SSHFWQ -p 22
+cp \$0 ~/.ssh/\$(basename \$0 ) ;fi
+for a in "\$@" ;do
+case"\$a in
+amd64.deb|all.deb)
+scp -P 22 \$a $SSHFWQ:$ML/$JC/deb-amd64/\$(basename \$a);;
+esac
+done
+ssh $SSHFWQ bash okapps build &
+shell
+;;
+esac
+tee<<ttttt>$JC/install-$JC.sh
+#!/bin/bash
+cd /tmp
+wget http://$BJFWQ/$JC/$JC-apt.list
+wget http://$BJFWQ/$JC/$JC-linux.pub
+sudo mv -f $JC-apt.list /etc/apt/sources.list.d/$JC.list
+sudo apt-key add $JC-linux.pub
+rm $JC-linux.pub
+apt update
+ttttt
+
+
+}
+
+scdeb() {
+cd "$DQML"
+for a in $@ ;do
+if [ -f "$a" ];  then
+mkdir -p $ML/$JC/deb-$cpu
+mv "$a" $ML/$JC/deb-$cpu/
+fi ;done 
+cd $ML
+jlapt
+}
+
+startinst() {
+if [ -d /etc/nginx/vhost ];then
+httpcnf=/etc/nginx/vhost/apt8010.conf
+else
+httpcnf=/etc/okapps-nginx.conf;fi
+tee <<nginxcf>$httpcnf
+server
+    {
+        listen 80;
+        server_name $BJFWQ;
+        root $ML;
+
+        location / {
+            autoindex on;   
+            autoindex_exact_size off;   
+            autoindex_localtime on;   
+        }
+
+        location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+        {
+            expires      30d;
+        }
+
+        location ~ .*\.(js|css)?$
+        {
+            expires      12h;
+        }
+
+        access_log off;
+    }
+nginxcf
+tee <<service>/etc/init.d/okapps
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          okapps
+# Required-Start:    \$remote_fs \$syslog
+# Required-Stop:     \$remote_fs \$syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      1
+# Short-Description: OKApp
+# Description:       Auto Start PPTP VPN By sjchenkan
+### END INIT INFO
+export PATH=/bin:/sbin:$PATH
+case "\$1" in
+start) /bin/okapps auto 2>&1 >tmp/vpnook.log & ;;
+stop) echo not stop ;;
+esac
+service
+chmod +x /etc/init.d/okapps
+if [ -x /sbin/chkconfig ];then
+chkconfig okapps on
+elif [ -f /usr/sbin/update-rc.d ];then
+update-rc.d okapps start 80 2 3 4 5 . stop 80 1 .
+update-rc.d okapps enable
+elif type -p systemctl ;then
+systemctl enable okapps ;fi
+useradd okapps -m -s /bin/bash
+cp "$DQML/$0" /bin/okapps
+chmod +x /bin/okapps
+chmod -R +w /home/okapps
+chown -R okapps:okapps /home/okapps
+mkdir -p $ML/$JC/deb
+chown -R okapps:okapps $ML &
+chmod -R 755 $ML &
+if [ ! -f /home/.okappscnf ];then
+tee<<PASCNF>/home/.okappscnf
+$$apps
+$$apps
+PASCNF
+fi
+passwd okapps</home/.okappscnf
+}
+
+upfwq() {
+cd $ML
+if [ -f ./.up.look ]; then
+exit ; fi
+echo >./.up.look
+if [ ! -f ~/.ssh/$(basename $0 ) ];then
+ssh-copy-id ck@103.235.222.153 -p 22
+cp $0 ~/.ssh/$(basename  $0 ) ;fi
+ssh ck@103.235.222.153 rm $ML2/deb/*
+scp -r $ML/$JC/* ck@103.235.222.153:$ML2/
+rm ./.up.look
+}
+
+daoroot() {
+if [ $(id -u) != 0 ];then
+cd "$DQML"
+if [ ! -f ~/.ssh/mm$(basename "$0").key ];then
+echo Sudo Password?
+read mm
+ka=$(echo $mm|base64 -i)
+kb=$(echo $(md5sum /etc/passwd)|base64 -i|sed -n '1p')
+kd=$(echo $(id;date +%m)|base64 -i|sed -n '1p')
+echo $kd$ka$kb|tr -d '[ |=|\-]'>~/.ssh/mm$(basename "$0").key ;fi
+pass="$(cat ~/.ssh/mm$(basename "$0").key)" 
+kb=$(echo $(md5sum /etc/passwd)|base64 -i|sed -n '1p')
+kd=$(echo $(id;date +%m)|base64 -i|sed -n '1p')
+pass=$(echo "$pass"|sed -e "s/$kd//g")
+echo "$pass=="|sed -e "s/$kb//g"|base64 -d|sudo -S bash "$0" "$@" 
+sleep 2
+if [ -f ~/.ssh/mm$(basename "$0").key.look ]; then
+rm -rf ~/.ssh/mm$(basename "$0").key.look ;else
+rm -rf ~/.ssh/mm$(basename "$0").key*;fi
+exit
+elif [ -f ~/.ssh/mm$(basename "$0").key ]; then
+cp ~/.ssh/mm$(basename "$0").key ~/.ssh/mm$(basename "$0").key.look
+fi
+}
+
+
+[ -d $ML ] && cd $ML
+
+case $1 in
+start)daoroot $1;startinst;;
+*.deb)scdeb $@ ;;
+build) jlapt $1 ;;
+esac
