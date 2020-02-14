@@ -1,10 +1,10 @@
 #!/bin/bash
 #!/bin/bash
 
-defcnf() {
 if [ -f /etc/okapps ];then
 . /etc/okapps
 else
+daoroot
 tee <<okcnf>/etc/okapps
 MC=OKLinux
 JC=lroapps
@@ -22,17 +22,12 @@ JX="
 "
 okcnf
 . /etc/okapps
+[ ! -f $ML/.okapps ] && cp /etc/okapps $ML/.okapps
 fi
-}
+DQML=$(pwd)
+[ -f ~/.gpgkeycnf ]&& . ~/.gpgkeycnf
+[ -d $ML ] && cd $ML
 
-
-cnf() {
-for cnf in $ML/.okapps* ;do
-if [ -f $cnf ];then
-. $cnf
-fi
-done
-}
 
 mirapt() {
 mkdir -p $ML/mirr/$FWQ
@@ -77,12 +72,10 @@ yapt
 
 }
 
-DQML=$(pwd)
-
-[ -f ~/.gpgkeycnf ]&& . ~/.gpgkeycnf
 
 yapt() {
 mkdir -p $1/$3-$2 ;cd $1
+mkdir -p deb-$2
 tee <<FXTXET>$3-$2/Release
 in: $MC
 Label: $MC
@@ -344,6 +337,16 @@ scp -r $ML/$JC/* ck@103.235.222.153:$ML2/
 rm ./.up.look
 }
 
+
+cnf() {
+for cnf in $ML/.okapps* ;do
+if [ -f $cnf ];then
+. $cnf
+$1 $2
+fi
+done
+}
+
 daoroot() {
 if [ $(id -u) != 0 ];then
 cd "$DQML"
@@ -370,11 +373,11 @@ fi
 }
 
 
-[ -d $ML ] && cd $ML
-
 case $1 in
 start)daoroot $1;startinst;;
 *.deb) cnf scdeb $2 ;;
 build) cnf jlapt $2 ;;
-tb) cnf mirr ;;
+tb) cnf mirapt ;;
+auto) cnf zidong ;;;
+ftp) cnf okftp ;;
 esac
