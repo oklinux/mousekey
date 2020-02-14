@@ -1,33 +1,6 @@
 #!/bin/bash
 #!/bin/bash
 
-if [ -f /etc/okapps ];then
-. /etc/okapps
-else
-daoroot
-tee <<okcnf>/etc/okapps
-MC=OKLinux
-JC=lroapps
-LX=app
-ZZ=lroapps
-BB=2.0
-FWQ=
-DH=
-BJFWQ=okapps.oukan.online
-SSHFWQ="okapps@oukan.online"
-ML2=/home/wwwroot/$BJFWQ
-ML=/home/wwwroot/$ZZ
-JX="
-
-"
-okcnf
-. /etc/okapps
-[ ! -f $ML/.okapps ] && cp /etc/okapps $ML/.okapps
-fi
-DQML=$(pwd)
-[ -f ~/.gpgkeycnf ]&& . ~/.gpgkeycnf
-[ -d $ML ] && cd $ML
-
 
 mirapt() {
 mkdir -p $ML/mirr/$FWQ
@@ -131,6 +104,7 @@ cd ..
 }
 
 jlapt() {
+scdeb $ML/$JC/deb/*
 if [ ! -e /usr/bin/dpkg-scanpackages ];then
 apt-get -y install dpkg-dev ;fi
 case $LX in
@@ -159,16 +133,14 @@ rtf
 
 case $0 in
 ./*|/bin/*)
+mkdir -p $JC/deb
 tee <<shell>$JC-up-deb.sh
 #!/bin/bash
 if [ ! -f ~/.ssh/\$(basename \$0 ) ];then
 ssh-copy-id $SSHFWQ -p 22
 cp \$0 ~/.ssh/\$(basename \$0 ) ;fi
 for a in "\$@" ;do
-case"\$a in
-amd64.deb|all.deb)
-scp -P 22 \$a $SSHFWQ:$ML/$JC/deb-amd64/\$(basename \$a);;
-esac
+scp -P 22 \$a $SSHFWQ:$ML/$JC/deb/\$(basename \$a);;
 done
 ssh $SSHFWQ bash okapps build &
 shell
@@ -191,6 +163,12 @@ ttttt
 scdeb() {
 cd "$DQML"
 for a in $@ ;do
+arch=$(dpkg-deb --info "$a"|grep "Architcture")
+case "$arch" in
+*amd64|*all)cpu=amd64;;
+*i386) cpu=i386;;
+*mips*) cpu=loongson;;
+esac
 if [ -f "$a" ];  then
 mkdir -p $ML/$JC/deb-$cpu
 mv "$a" $ML/$JC/deb-$cpu/
@@ -324,7 +302,7 @@ python3 /tmp/pyftp.py &
 
 }
 
-upfwq(() {
+upfwq() {
 cd $ML
 if [ -f ./.up.look ]; then
 exit ; fi
@@ -332,7 +310,7 @@ echo >./.up.look
 if [ ! -f ~/.ssh/$(basename $0 ) ];then
 ssh-copy-id ck@103.235.222.153 -p 22
 cp $0 ~/.ssh/$(basename  $0 ) ;fi
-ssh ck@103.235.222.153 rm $ML2/deb/*
+ssh ck@103.235.222.153 rm $ML2/deb-*/*
 scp -r $ML/$JC/* ck@103.235.222.153:$ML2/
 rm ./.up.look
 }
@@ -371,6 +349,33 @@ elif [ -f ~/.ssh/mm$(basename "$0").key ]; then
 cp ~/.ssh/mm$(basename "$0").key ~/.ssh/mm$(basename "$0").key.look
 fi
 }
+
+if [ -f /etc/okapps ];then
+. /etc/okapps
+else
+daoroot
+tee <<okcnf>/etc/okapps
+MC=OKLinux
+JC=lroapps
+LX=app
+ZZ=lroapps
+BB=2.0
+FWQ=
+DH=
+BJFWQ=okapps.oukan.online
+SSHFWQ="okapps@oukan.online"
+ML2=/home/wwwroot/$BJFWQ
+ML=/home/wwwroot/$ZZ
+JX="
+
+"
+okcnf
+. /etc/okapps
+[ ! -f $ML/.okapps ] && cp /etc/okapps $ML/.okapps
+fi
+DQML=$(pwd)
+[ -f ~/.gpgkeycnf ]&& . ~/.gpgkeycnf
+[ -d $ML ] && cd $ML
 
 
 case $1 in
