@@ -24,6 +24,9 @@ JX="
 okcnf
 . /etc/okapps
 fi
+}
+
+
 cnf() {
 for cnf in $ML/.okapps* ;do
 if [ -f $cnf ];then
