@@ -241,8 +241,8 @@ chown -R okapps:okapps /home/okapps
 mkdir -p $ML/$JC/deb
 chown -R okapps:okapps $ML &
 chmod -R 755 $ML &
-apt install -y pip
-pip install pyftpdlib
+apt install -y pyython-pip3
+pip3 install pyftpdlib
 if [ ! -f /home/.okappscnf ];then
 tee<<PASCNF>/home/.okappscnf
 $$apps
@@ -365,12 +365,13 @@ DH=
 BJFWQ=okapps.oukan.online
 SSHFWQ="okapps@oukan.online"
 ML2=/home/wwwroot/$BJFWQ
-ML=/home/wwwroot/$ZZ
+ML=/home/wwwroot/lroapps
 JX="
 
 "
 okcnf
 . /etc/okapps
+mkdir -p $ML
 [ ! -f $ML/.okapps ] && cp /etc/okapps $ML/.okapps
 fi
 DQML=$(pwd)
@@ -383,6 +384,6 @@ start)daoroot $1;startinst;;
 *.deb) cnf scdeb $2 ;;
 build) cnf jlapt $2 ;;
 tb) cnf mirapt ;;
-auto) cnf zidong ;;;
+auto) cnf zidong ;;
 ftp) cnf okftp ;;
 esac
