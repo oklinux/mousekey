@@ -79,7 +79,7 @@ cat $3-$2/Sources|gzip -c9>$3-$2/Sources.gz
 apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
 ;;
-×)
+*)
 echo "正在生成软件包列表，请耐心等待。。。。。。"
 dpkg-scanpackages deb-$2 /dev/null >$3-$2/Packages 
 cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
