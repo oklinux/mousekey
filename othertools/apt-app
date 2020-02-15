@@ -1,8 +1,8 @@
 #!/bin/bash
 #!/bin/bash
 
-
 mirapt() {
+daoroot $1
 mkdir -p $ML/mirr/$FWQ
 mount -o bind $ML/$JC $ML/mirr/$FWQ
 
@@ -35,13 +35,14 @@ $JX
 #
 clean http://$FWQ
 file
-[ ! type -p apt-mirror ]&& apt install apt-mirror
+if [ ! -f /usr/bin/apt-mirror ];then
+apt install apt-mirror;fi
 apt-mirror
 done
 umount $ML/$FWQ
-chown -R www:www $ML
-chmod -R 666 $ML
-yapt
+chown -R okapps:okapps $ML
+chmod -R 755 $ML
+jlapt
 
 }
 
@@ -238,8 +239,8 @@ chmod +x /bin/okapps
 chmod -R +w /home/okapps
 chown -R okapps:okapps /home/okapps
 mkdir -p $ML/$JC/deb
-chown -R www:www $ML &
-chmod -R 666 $ML &
+chown -R okapps:okapps $ML &
+chmod -R 755 $ML &
 apt install -y python3-pip
 pip3 install pyftpdlib
 if [ ! -f /home/.okappscnf ];then
@@ -386,7 +387,7 @@ case $1 in
 start)daoroot $1;startinst;;
 *.deb) cnf scdeb $2 ;;
 build) cnf jlapt $2 ;;
-tb) cnf mirapt ;;
+tb) cnf mirapt $1 ;;
 auto) cnf zidong ;;
 ftp) cnf okftp "$@";;
 esac
