@@ -40,7 +40,7 @@ apt-mirror
 done
 umount $ML/$FWQ
 chown -R www:www $ML
-chmod -R 755 $ML
+chmod -R 666 $ML
 yapt
 
 }
@@ -163,18 +163,17 @@ ttttt
 scdeb() {
 cd "$DQML"
 for a in $@ ;do
+if [ -f "$a" ];  then
 arch=$(dpkg-deb --info "$a"|grep "Architcture")
 case "$arch" in
 *amd64|*all)cpu=amd64;;
 *i386) cpu=i386;;
 *mips*) cpu=loongson;;
 esac
-if [ -f "$a" ];  then
 mkdir -p $ML/$JC/deb-$cpu
 mv "$a" $ML/$JC/deb-$cpu/
 fi ;done 
 cd $ML
-jlapt
 }
 
 startinst() {
@@ -239,9 +238,9 @@ chmod +x /bin/okapps
 chmod -R +w /home/okapps
 chown -R okapps:okapps /home/okapps
 mkdir -p $ML/$JC/deb
-chown -R okapps:okapps $ML &
-chmod -R 755 $ML &
-apt install -y pyython-pip3
+chown -R www:www $ML &
+chmod -R 666 $ML &
+apt install -y python3-pip
 pip3 install pyftpdlib
 if [ ! -f /home/.okappscnf ];then
 tee<<PASCNF>/home/.okappscnf
@@ -261,32 +260,36 @@ done
 }
 
 okftp() {
-if [ -f /home/.okftp.cmf ];then
+if [ -f /home/.okftp.cnf ];then
 . /home/.okftp.cnf
 else
 echo FTP user amd password:
 read yonghu mima
 [ -z "$mima" ] && okftp
+duankou=8501
 tee <<cnf>/home/.okftp.cnf
 yonghu=$yonghu
 mima=$mima
+duankou=8501
 cnf
 fi
 
 
 tee <<pyftp>/tmp/pyftp.py
+import os
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
 def main():
-    authorizer.add_user('$yonghu', '$mima', '.', perm='elradfmwM')
+    authorizer = DummyAuthorizer()
+    authorizer.add_user('$yonghu', '$mima', '$ML/$JC/deb', perm='elradfmwM')
     authorizer.add_anonymous(os.getcwd())
 
     # Instantiate FTP handler class
     handler = FTPHandler
     handler.authorizer = authorizer
-    address = ('', 8850)
+    address = ('', $duankou)
     server = FTPServer(address, handler)
 
     # set a limit for connections
@@ -385,5 +388,5 @@ start)daoroot $1;startinst;;
 build) cnf jlapt $2 ;;
 tb) cnf mirapt ;;
 auto) cnf zidong ;;
-ftp) cnf okftp ;;
+ftp) cnf okftp "$@";;
 esac
