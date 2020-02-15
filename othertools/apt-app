@@ -388,6 +388,6 @@ start)daoroot $1;startinst;;
 *.deb) cnf scdeb $2 ;;
 build) cnf jlapt $2 ;;
 tb) cnf mirapt $1 ;;
-auto) cnf zidong ;;
+auto) cnf zidong & ;;
 ftp) cnf okftp "$@";;
 esac
