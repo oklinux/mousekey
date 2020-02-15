@@ -1,3 +1,4 @@
+
 #!/bin/bash
 #!/bin/bash
 
@@ -165,15 +166,17 @@ scdeb() {
 cd "$DQML"
 for a in $@ ;do
 if [ -f "$a" ];  then
-arch=$(dpkg-deb --info "$a"|grep "Architcture")
+arch=$(dpkg-deb --info "$a"|grep "Architecture")
 case "$arch" in
-*amd64|*all)cpu=amd64;;
-*i386) cpu=i386;;
+*amd64*|*all*) cpu=amd64;;
+*i386*) cpu=i386;;
 *mips*) cpu=loongson;;
 esac
+if [ ! -z "$cpu" ];then
 mkdir -p $ML/$JC/deb-$cpu
+
 mv "$a" $ML/$JC/deb-$cpu/
-fi ;done 
+fi ;fi ;done
 cd $ML
 }
 
@@ -385,9 +388,9 @@ DQML=$(pwd)
 
 case $1 in
 start)daoroot $1;startinst;;
-*.deb) cnf scdeb $2 ;;
+*.deb) cnf scdeb "$@" ;;
 build) cnf jlapt $2 ;;
-tb) cnf mirapt $1 ;;
+tb) cnf mirapt $2 ;;
 auto) cnf zidong & ;;
 ftp) cnf okftp "$@";;
 esac
