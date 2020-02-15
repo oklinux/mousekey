@@ -80,13 +80,14 @@ apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
 ;;
 *)
-echo "正在生成软件包列表，请耐心等待。。。。。。"
+echo "正在生成$2软件包列表，请耐心等待。。。。。。"
 dpkg-scanpackages deb-$2 /dev/null >$3-$2/Packages 
 cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
 apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
 mkdir -p ../tmp/deb-$2
-mv -f deb-$2/* ../tmp/deb-$1/
+for Y in $(ls deb-$2/);do
+mv deb-$2/$Y ../tmp/deb-$2/ ;done
 sed -n '/Filename/p' $3-$2/Packages|while read a b;do
 mv -f ../tmp/$b deb-$2/
 done
