@@ -236,7 +236,7 @@ update-rc.d okapps start 80 2 3 4 5 . stop 80 1 .
 update-rc.d okapps enable
 elif type -p systemctl ;then
 systemctl enable okapps ;fi
-useradd okapps -m -s /bin/bash
+useradd okapps -m -s /bin/nologin-ok
 cp "$DQML/$0" /bin/okapps
 chmod +x /bin/okapps
 chmod -R +w /home/okapps
