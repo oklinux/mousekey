@@ -305,7 +305,7 @@ def main():
 if __name__ == '__main__':
     main()
 pyftp
-python3 /tmp/pyftp.py &
+sudo -u okapps python3 /tmp/pyftp.py &
 
 }
 
