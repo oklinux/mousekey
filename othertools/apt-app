@@ -4,9 +4,9 @@
 mirapt() {
 daoroot $1
 mkdir -p $ML/mirr/$FWQ
-mount -o bind $ML/$JC $ML/mirr/$FWQ
 
 if [ ! -z "$FWQ" -a ! -z "$DH" ];then
+mount -o bind $ML/$JC $ML/mirr/$FWQ
 JX="
 deb http://$FWQ/ $DH main restricted universe multiverse
 deb http://$FWQ/ $DH-security main restricted universe multiverse
@@ -39,7 +39,8 @@ if [ ! -f /usr/bin/apt-mirror ];then
 apt install apt-mirror;fi
 apt-mirror
 done
-umount $ML/$FWQ
+umount $ML/mirr/$FWQ
+[ "$LX" == "app" ] && mv $(find $ML/mirr/ -name ".deb") $ML/lroapps/deb
 chown -R okapps:okapps $ML
 chmod -R 755 $ML
 jlapt
