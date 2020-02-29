@@ -390,8 +390,9 @@ DQML=$(pwd)
 case $1 in
 start)daoroot $1;startinst;;
 *.deb) cnf scdeb "$@" ;;
-build) cnf jlapt $2 ;;
-tb) cnf mirapt $2 ;;
+build) cnf jlapt $2 & ;;
+tb) cnf mirapt $2 & ;;
 auto) cnf zidong & ;;
 ftp) cnf okftp "$@";;
 esac
+
