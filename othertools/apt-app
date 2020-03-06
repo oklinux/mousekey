@@ -40,7 +40,6 @@ apt install apt-mirror;fi
 apt-mirror
 done
 umount $ML/mirr/$FWQ
-[ "$LX" == "app" ] && mv $(find $ML/mirr/ -name ".deb") $ML/lroapps/deb
 chown -R okapps:okapps $ML
 chmod -R 755 $ML
 jlapt
@@ -107,6 +106,7 @@ cd ..
 }
 
 jlapt() {
+[ "$LX" == "app" ] && cp -rf $(find $ML/mirr/ -name ".deb") $ML/lroapps/deb
 scdeb $ML/$JC/deb/*
 if [ ! -e /usr/bin/dpkg-scanpackages ];then
 apt-get -y install dpkg-dev ;fi
