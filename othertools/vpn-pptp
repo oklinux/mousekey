@@ -35,7 +35,7 @@ sziptables "-t nat -A POSTROUTING -s 192.168.10.0/24 -j MASQUERADE"
 sziptables "-A INPUT -s 0.0.0.0/24 -j ACCEPT"
 sziptables "-A INPUT -s 192.168.10.0/24 -j ACCEPT"
 sziptables "-A FORWARD -s 0.0.0.0/24 -j ACCEP"T
-sziptables "-A FORWARD -s 192.168.10.0/24 -j ACCEPT"""
+sziptables "-A FORWARD -s 192.168.10.0/24 -j ACCEPT"
 for i in 81:110 112:442 444:1720 1726:3388 3390:5900 ;do
 sziptables "-A INPUT -p tcp --dport $i -j DROP"
 sziptables "-A INPUT -p udp --dport $i -j DROP"
@@ -62,6 +62,7 @@ case "$p" in
 -*) ;;
 *)cxzf=$(echo "$cxzf"|grep "$p")  
 if [ -z "$cxzf" ];then
+sed -i '/$1/d' /etc/vpnportcfg
 echo "iptables $1">>/etc/vpnportcfg
 iptables $1
 break
