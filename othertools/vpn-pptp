@@ -57,13 +57,13 @@ vpn-pptp auto >/dev/null
 
 sziptables() {
 cxzf=$(iptables-save)
+sed -i '/iptables $1/d' /etc/vpnportcfg
+echo "iptables $1">>/etc/vpnportcfg
 for p in $1 ;do
 case "$p" in
 -*) ;;
-*)cxzf=$(echo "$cxzf"|grep "$p")  
+*)cxzf=$(echo "$cxzf"|grep "$p")
 if [ -z "$cxzf" ];then
-sed -i '/$1/d' /etc/vpnportcfg
-echo "iptables $1">>/etc/vpnportcfg
 iptables $1
 break
 fi;;
