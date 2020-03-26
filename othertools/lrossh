@@ -18,9 +18,10 @@ python3 /tmp/typ.py &
 sshadd() {
 [ ! -f ~/.okssh  ] && mkdir -p ~/.okssh
 [ -z "$3" ] &&port=22
+[ ! -z "$3" ] &&port=$3
 tee <<sshtxet>~/.okssh/$1
 ssh=$2
-port=$3$port
+port=$port
 sshtxet
 ssh-copy-id "$2" -p $3$port
 }
