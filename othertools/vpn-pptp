@@ -1,3 +1,4 @@
+
 #!/bin/bash
 #!/bin/bash
 
@@ -10,7 +11,7 @@ shuru()
 [ "$1" != auto ] && [ ! -z "$1" ] && srv=$1
 [ -z "$srv" ] && echo "server" && read srv
 [ "$srv" == d3 ] && srv=43.231.184.83
-[ "$srv" == lro ] && srv=103.235.222.153
+[ "$srv" == lro ] && srv=106.2.6.60
 [ -z "$routed" ] && echo "Default Route?(y/n)" && read routed
 [ -z "$srv" ] && exit 1
 [ ! -z "$pass" ] && sed -i "/pptpmyvpndevice/d" /etc/ppp/chap-secrets
@@ -25,21 +26,37 @@ routed=$routed
 vpn
 fi
 }
+xpz() {
+case "$1" in
+*/*)sed -i ':$1:d' $2;;
+*)sed -i '/$1/d' $2;;
+esac
+echo "$1">>$2
+}
+
+pzdns() {
+dns="
+223.5.5.5
+223.6.6.6
+114.114.114.114
+180.78.78.78
+8.8.8.8"
+for d in $dns ;do
+xpz "nameserver $d" /etc/resolv.conf
+done
+}
+
 FHQ() {
 if [ -f /etc/vpnportcfg ];then
-cxb=$(iptables-save|grep "192.168.10.0/24")
+cxb=$(iptables-save|grep "1726:33")
 [ -z "$cxb" ]&& . /etc/vpnportcfg
 fi
-sziptables "-t nat -A POSTROUTING -s 0.0.0.0/24 -j MASQUERADE" 
-sziptables "-t nat -A POSTROUTING -s 192.168.10.0/24 -j MASQUERADE"
-sziptables "-A INPUT -s 0.0.0.0/24 -j ACCEPT"
-sziptables "-A INPUT -s 192.168.10.0/24 -j ACCEPT"
-sziptables "-A FORWARD -s 0.0.0.0/24 -j ACCEP"T
+sziptables "-t nat -A POSTROUTING -j MASQUERADE" 
 sziptables "-A FORWARD -s 192.168.10.0/24 -j ACCEPT"
 for i in 81:110 112:442 444:1720 1726:3388 3390:5900 ;do
 sziptables "-A INPUT -p tcp --dport $i -j DROP"
-sziptables "-A INPUT -p udp --dport $i -j DROP"
 done
+pzdns
 setip="net.ipv4.ip_forward"
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
 sysctl -p
@@ -53,12 +70,13 @@ iptables-apply 2>&1 >/dev/null &
 modprobe ip_tables
 vpn-pptp auto >/dev/null
 
+
 }
+
 
 sziptables() {
 cxzf=$(iptables-save)
-sed -i '/iptables $1/d' /etc/vpnportcfg
-echo "iptables $1">>/etc/vpnportcfg
+xpz "iptables $1" /etc/vpnportcfg
 for p in $1 ;do
 case "$p" in
 -*) ;;
@@ -70,12 +88,10 @@ fi;;
 esac
 done
 }
+
 zf() {
 echo localhoost:$1 to $2:$3
-sziptables "-t nat -A PREROUTING -p tcp --dport $1 -j DNAT --to-destination $2:$3"
-sziptables "-t nat -A PREROUTING -p udp --dport $1 -j DNAT --to-destination $2:$3"
-sziptables "-t nat -A POSTROUTING -p tcp -d $2 --dport $3 -j MASQUERADE"
-sziptables "-t nat -A POSTROUTING -p udp -d $2 --dport $3 -j MASQUERADE"
+/sziptables "-t nat -A PREROUTING -p tcp --dport $1 -j DNAT --to-destination $2:$3"
 
 cd /etc/network
 iptables-save >/etc/network/iptables.up.rules
@@ -161,6 +177,7 @@ shuru $1
 chmod +x /bin/pptpsetup
 pptpsetup --create pptpmyvpndevice --server $srv --username $user --password $pass --encrypt --start
 if [ -f /sbin/route ] ;then
+pzdns
 route|while read ra rb rc rd re rf rg rh;do
 case $ra$routed$rh in
 default*) ;;
