@@ -395,6 +395,6 @@ start)daoroot $1;startinst;;
 build) cnf jlapt $2 & ;;
 tb) cnf mirapt $2 & ;;
 auto) cnf zidong & ;;
-ftp） okftp "$@";;
+ftp) okftp "$@";;
 esac
 
