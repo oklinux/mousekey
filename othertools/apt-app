@@ -75,6 +75,7 @@ dpkg-scanpackages . /dev/null >$3-$2/Packages
 dpkg-scansources . /dev/null >$3-$2/Sources
 fi;fi
 cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
+
 cat $3-$2/Sources|gzip -c9>$3-$2/Sources.gz
 apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
@@ -106,8 +107,9 @@ cd ..
 }
 
 jlapt() {
-[ -d "$ML/mirr" -a "$LX" == "app" ] && cp -rf $(find $ML/mirr/ -name "*deb") $ML/lroapps/deb
-scdeb $ML/$JC/deb/*
+mkdir -p $ML/.deb/$JC
+[ -d "$ML/mirr" -a "$LX" == "app" ] && cp -rf $(find $ML/mirr/ -name "*deb") $ML/.deb/$JC/
+scdeb $ML/.deb/$JC/*
 if [ ! -e /usr/bin/dpkg-scanpackages ];then
 apt-get -y install dpkg-dev ;fi
 case $LX in
@@ -136,14 +138,14 @@ rtf
 
 case $0 in
 ./*|/bin/*)
-mkdir -p $JC/deb
+mkdir -p .deb/$JC
 tee <<shell>$JC-up-deb.sh
 #!/bin/bash
 if [ ! -f ~/.ssh/\$(basename \$0 ) ];then
 ssh-copy-id $SSHFWQ -p 22
 cp \$0 ~/.ssh/\$(basename \$0 ) ;fi
 for a in "\$@" ;do
-scp -P 22 \$a $SSHFWQ:$ML/$JC/deb/\$(basename \$a);;
+scp -P 22 \$a $SSHFWQ:$ML/.deb/$JC/\$(basename \$a);;
 done
 ssh $SSHFWQ bash okapps build &
 shell
@@ -242,7 +244,7 @@ cp "$DQML/$0" /bin/okapps
 chmod +x /bin/okapps
 chmod -R +w /home/okapps
 chown -R okapps:okapps /home/okapps
-mkdir -p $ML/$JC/deb
+mkdir -p $ML/.deb/$JC
 chown -R okapps:okapps $ML &
 chmod -R 755 $ML &
 apt install -y python3-pip
@@ -288,7 +290,7 @@ from pyftpdlib.servers import FTPServer
 
 def main():
     authorizer = DummyAuthorizer()
-    authorizer.add_user('$yonghu', '$mima', '$ML/$JC/deb', perm='elradfmwM')
+    authorizer.add_user('$yonghu', '$mima', '$ML/.deb', perm='elradfmwM')
     authorizer.add_anonymous(os.getcwd())
 
     # Instantiate FTP handler class
@@ -393,6 +395,6 @@ start)daoroot $1;startinst;;
 build) cnf jlapt $2 & ;;
 tb) cnf mirapt $2 & ;;
 auto) cnf zidong & ;;
-ftp) cnf okftp "$@";;
+ftp） okftp "$@";;
 esac
 
