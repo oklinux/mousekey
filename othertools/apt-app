@@ -100,6 +100,7 @@ esac
 gpg -abs  -o $3-$2/Release.gpg $3-$2/Release
 gpg --clearsign -o $3-$2/InRelease $3-$2/Release
 yuan="deb http://$BJFWQ/$1 $3-$2/
+deb-src http://$BJFWQ/$1 $3-$2/
 $yuan"
 
 echo 列表生成完毕！
@@ -112,22 +113,28 @@ mkdir -p $ML/.deb/$JC
 scdeb $ML/.deb/$JC/*
 if [ ! -e /usr/bin/dpkg-scanpackages ];then
 apt-get -y install dpkg-dev ;fi
+yuan=""
 case $LX in
 os)
 yapt $JC mips os
 yapt $JC amd64 os
 yapt $JC i386 os
-yapt $JC amd64 update;;
+yapt $JC amd64 update
+list=/etc/apt/sources.list;;
 app)
 yapt $JC amd64 app
 yapt $JC i386 app
-yapt $JC loongson mips;;
+yapt $JC loongson mips
+list=/etc/apt/sources.list.d/$JC.list;;
 esac
 
 if [ ! -f .$JC-linux.DB ];then
-gpg -a --export -a >$JC/$JC-linux.pub
+gpg -a --export -a >$JC/$JC-linux.pub && \
 gpg -a --export-secret-keys -a >.$JC-linux.sub
-gpg --export-ownertrust >.$JC-linux.DB ;fi
+gpg --export-ownertrust >.$JC-linux.DB
+elif [ ! -f $HOME/.APT.sub ];then
+cp .$JC-linux.sub $HOME/.APT.sub
+gpg --import $JC-linux.sub ;fi
 tee <<rtf>$JC/$JC-apt.list
 #$ZZ desktop v$BB
 
@@ -156,7 +163,7 @@ tee<<ttttt>$JC/install-$JC.sh
 cd /tmp
 wget http://$BJFWQ/$JC/$JC-apt.list
 wget http://$BJFWQ/$JC/$JC-linux.pub
-sudo mv -f $JC-apt.list /etc/apt/sources.list.d/$JC.list
+sudo mv -f $JC-apt.list $list
 sudo apt-key add $JC-linux.pub
 rm $JC-linux.pub
 apt update
@@ -259,10 +266,12 @@ passwd okapps</home/.okappscnf
 }
 
 zidong() {
+export HOME=/home/okapps
+chmod -R +rw $ML
 okftp
 while [ k == k ];do
 sleep 43200
-$0 build
+sudo -u okapps $0 build
 done
 }
 
@@ -324,7 +333,6 @@ ssh ck@103.235.222.153 rm $ML2/deb-*/*
 scp -r $ML/$JC/* ck@103.235.222.153:$ML2/
 rm ./.up.look
 }
-
 
 cnf() {
 for cnf in $ML/.okapps* ;do
