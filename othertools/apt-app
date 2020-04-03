@@ -64,11 +64,13 @@ os)
 if [ -d dists ];then
 echo "">$3-$2/Packages
 for p in dists/$DH/*/*-$2/Packages dists/$DH*/*/*-$2/Packages;do
+if [ -f $p ];then
 cat $p >> $3-$2/Packages
-done
+fi;done
 for p in dists/$DH/*/source/Sources dists/$DH*/*/source/Sources;do
+if [ -f $p ];then
 cat $p >> $3-$2/Sources
-done
+fi;done
 else
 if [ ! -f $3-$2/Packages ];then
 dpkg-scanpackages . /dev/null >$3-$2/Packages 
