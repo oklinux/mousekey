@@ -116,6 +116,15 @@ mkdir -p $ML/.deb/$JC
 scdeb $ML/.deb/$JC/*
 if [ ! -e /usr/bin/dpkg-scanpackages ];then
 apt-get -y install dpkg-dev ;fi
+
+if [ ! -f .$JC-linux.DB ];then
+gpg -a --export -a >$JC/$JC-linux.pub && \
+gpg -a --export-secret-keys -a >.$JC-linux.sub
+gpg --export-ownertrust >.$JC-linux.DB
+elif [ ! -f $HOME/.okapps-key.sub ];then
+cp .$JC-linux.sub $HOME/.okapps-key.sub
+gpg --import .$JC-linux.sub ;fi
+
 yuan=""
 case $LX in
 os)
@@ -130,14 +139,6 @@ yapt $JC i386 app
 yapt $JC loongson mips
 list=/etc/apt/sources.list.d/$JC.list;;
 esac
-
-if [ ! -f .$JC-linux.DB ];then
-gpg -a --export -a >$JC/$JC-linux.pub && \
-gpg -a --export-secret-keys -a >.$JC-linux.sub
-gpg --export-ownertrust >.$JC-linux.DB
-elif [ ! -f $HOME/.okapps-key.sub ];then
-cp .$JC-linux.sub $HOME/.okapps-key.sub
-gpg --import .$JC-linux.sub ;fi
 tee <<rtf>$JC/$JC-apt.list
 #$ZZ desktop v$BB
 
@@ -274,8 +275,8 @@ export HOME=/home/okapps
 chmod -R 777 $ML
 okftp
 while [ k == k ];do
+sudo -u okapps $0 build 2>&1 >/tmp/okapps.log &
 sleep 43200
-sudo -u okapps $0 build
 done
 }
 
