@@ -27,10 +27,12 @@ fi
 }
 xpz() {
 case "$1" in
-*/*)sed -i ':$1:d' $2;;
-*)sed -i '/$1/d' $2;;
+*/*)sed -i ":$1:d" $2
+echo "$1">>$2 ;;
+*)sed -i "/$1/d" $2
+echo "$1">>$2 ;;
 esac
-echo "$1">>$2
+
 }
 
 pzdns() {
