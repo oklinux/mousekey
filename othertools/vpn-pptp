@@ -27,9 +27,9 @@ fi
 }
 xpz() {
 case "$1" in
-*/*)sed -i ":$1:d" $2
+*/*) [ -f $1 ]&&  sed -i ":$1:d" $2
 echo "$1">>$2 ;;
-*)sed -i "/$1/d" $2
+*)[ -f $2 ]&& sed -i "/$1/d" $2
 echo "$1">>$2 ;;
 esac
 
@@ -238,7 +238,7 @@ exit;fi
 
 case "$0" in
 vpn-pptp|/bin*) ;;
-*)cp "$0" /bin/vpn-pptp && chmod +x /bin/vpn-pptp  ;;
+/*|./*|*/*)cp "$0" /bin/vpn-pptp && chmod +x /bin/vpn-pptp  ;;
 esac
 
 
