@@ -128,10 +128,14 @@ gpg --import .$JC-linux.sub ;fi
 yuan=""
 case $LX in
 os)
+if [ -d $JC/apt-amd64 ];then
+yapt $JC amd64 apt
+yapt $JC i386 apt
+else
 yapt $JC mips os
 yapt $JC amd64 os
 yapt $JC i386 os
-yapt $JC amd64 update
+yapt $JC amd64 update ;fi
 list=/etc/apt/sources.list;;
 app)
 yapt $JC amd64 app
