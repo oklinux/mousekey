@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 remote=$1
@@ -10,7 +11,7 @@ else
   if [ ! -z "$1" ]; then
   echo "New Git Addresss:"
   read g && [ -z "$g" ] && exit
-  git remote add "$g" ;fi
+  git remote add $1 "$g" ;fi
 tee <<gitcnf>~/.gituserpass$1
 U=$U
 P=$P
