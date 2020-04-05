@@ -5,9 +5,19 @@ if [ -f ~/.gituserpass$1 ];then
   . ~/.gituserpass$1
 else
   echo Github User and Password?
-  read U P
-  echo "U=$U \nP=$P">~/.gituserpass$1
+  read U P && [ -z "$P" ] && exit
+  if [ ! -z "$1" ]; then
+  echo "New Git Addresss:"
+  read g && [ -z "$g" ] && exit
+  git remote add "$g" ;fi
+tee <<gitcnf>~/.gituserpass$1
+U=$U
+P=$P
+g=$g
+gitcnf
 fi
+if [ "$2" == "add" ];then
+  git remote add "$g" ;fi
 
 tee<<pyfile>/tmp/typ.py
 #!/usr/bin/python3
@@ -18,12 +28,17 @@ time.sleep(3)
 jp.type('$U')
 jp.press(Key.enter)
 jp.release(Key.enter)
-time.sleep(2)
+time.sleep(3)
 jp.type('$P')
 jp.press(Key.enter)
 jp.release(Key.enter)
 pyfile
 
+if [ $(id -u) == 0 ];then
+case "$0" in
+lrossh|/bin*) ;;
+*)cp "$0" /bin/fastgit && chmod +x /bin/fastgit ;;
+esac ;fi
 python3 /tmp/typ.py &
 
 git status
