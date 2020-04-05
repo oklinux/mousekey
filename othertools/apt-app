@@ -46,7 +46,6 @@ jlapt
 
 }
 
-
 yapt() {
 mkdir -p $1/$3-$2 ;cd $1
 mkdir -p deb-$2
@@ -60,7 +59,7 @@ Description:　$MC $BB
 MD5Sum:
 FXTXET
 case $3 in
-os)
+os|apt)
 if [ -d dists ];then
 echo "">$3-$2/Packages
 echo "">$3-$2/Sources
@@ -74,11 +73,11 @@ cat $p >> $3-$2/Sources
 fi;done
 else
 if [ ! -f $3-$2/Packages ];then
-dpkg-scanpackages . /dev/null >$3-$2/Packages 
+dpkg-scanpackages deb-$2 /dev/null >$3-$2/Packages 
 dpkg-scansources . /dev/null >$3-$2/Sources
 fi;fi
-cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
 
+cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
 cat $3-$2/Sources|gzip -c9>$3-$2/Sources.gz
 apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf

@@ -17,8 +17,6 @@ P=$P
 g=$g
 gitcnf
 fi
-if [ "$2" == "add" ];then
-  git remote add "$g" ;fi
 
 tee<<pyfile>/tmp/typ.py
 #!/usr/bin/python3
