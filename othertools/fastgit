@@ -1,4 +1,5 @@
 #!/bin/bash
+
 remote=$1
 [ -z $remote ]&& remote=origin
 if [ -f ~/.gituserpass$1 ];then
@@ -24,11 +25,11 @@ tee<<pyfile>/tmp/typ.py
 import os,sys,	time
 from pynput.keyboard import Key,Controller
 jp=Controller()
-time.sleep(3)
+time.sleep(4)
 jp.type('$U')
 jp.press(Key.enter)
 jp.release(Key.enter)
-time.sleep(3)
+time.sleep(4)
 jp.type('$P')
 jp.press(Key.enter)
 jp.release(Key.enter)
