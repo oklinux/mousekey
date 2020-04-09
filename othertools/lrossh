@@ -23,11 +23,11 @@ tee <<sshtxet>~/.okssh/$1
 ssh=$2
 port=$port
 sshtxet
-ssh-copy-id "$2" -p $3$port
+ssh-copy-id "$2" -p $port
 }
 
 sshadd_a() {
- [ -f ~/.okssh/$1 ] && . ~/.okssh/$1
+[ -f ~/.okssh/$1 ] && . ~/.okssh/$1
 if [ ok == ok$ssh ];then 
 echo  user@server port
 read ssh port && sshadd $1 $ssh $port
@@ -54,14 +54,8 @@ Name[zh_CN]=远程 $1
 Name=RDP & VNC $1
 Path=
 StartupNotify=false
-StartupWMClass=wps
 Terminal=false
-TerminalOptions=
 Type=Application
-X-DBUS-ServiceName=
-X-DBUS-StartupType=
-X-KDE-SubstituteUID=false
-X-KDE-Username=
 desk
 fi
 
@@ -72,7 +66,12 @@ add) if [ ok4 == "ok$#" ];then
 sshadd $2 $3 $4;fi
 if [ ok3 == "ok$#" ];then
 sshadd $2 $3 ;fi
+if [ ok2 == "ok$#" ];then
+[ -f ~/.okssh/$2 ] && . ~/.okssh/$2 && sshadd $ssh $port ;fi
 exit ;;
+edit)
+ [ -f ~/.okssh/$2 ] && nano ~/.okssh/$2 ;
+exit ;
 esac
 
 case $1 in
