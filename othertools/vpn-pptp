@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #!/bin/bash
 
@@ -59,8 +58,8 @@ fi
 if [ ! -f /etc/vpn-ipt.bak ]; then
 iptables-save>/etc/vpn-ipt.bak
 fi
-sziptables "-D -t nat POSTROUTING -j MASQUERADE" 
-sziptables "-D FORWARD -s 192.168.10.0/24 -j ACCEPT"
+sziptables "-t nat -F POSTROUTING" 
+sziptables "-F FORWARD -s 192.168.10.0/24 -j ACCEPT"
 sziptables "-t nat -A POSTROUTING -j MASQUERADE" 
 sziptables "-A FORWARD -s 192.168.10.0/24 -j ACCEPT"
 for i in 81:110 112:442 444:1720 1726:3388 3390:5900 ;do
