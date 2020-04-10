@@ -160,9 +160,9 @@ fwq1() {
 [ -f /etc/ppp/options.pptpd ] && OPTIONS=/etc/ppp/options.pptpd
 [ -f /etc/ppp/pptpd-options ] && OPTIONS=/etc/ppp/pptpd-options
 setip="net.ipv4.ip_forward"
-xpz "connections 15" /etc/pptpd.conf "onections "
-xpz "localip 192.168.10.199" /etc/pptpd.conf "localip "
-xpz "remoteip 192.168.10.150-230,192.168.10.245" /etc/pptpd.conf "remoteip "
+xpz "connections 15" /etc/pptpd.conf "onections"
+xpz "localip 192.168.10.199" /etc/pptpd.conf "localip"
+xpz "remoteip 192.168.10.150-230,192.168.10.245" /etc/pptpd.conf "remoteip"
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
 sysctl -p 
 for a in apt-get apt yum dnf ;do
