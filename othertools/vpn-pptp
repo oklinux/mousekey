@@ -26,13 +26,15 @@ vpn
 fi
 }
 xpz() {
-case "$1" in
-*/*) [ -f $1 ]&&  sed -i ":$1:d" $2
-echo "$1">>$2 ;;
-*)[ -f $2 ]&& sed -i "/$1/d" $2
-echo "$1">>$2 ;;
-esac
-
+NR=$(echo "$1"|sed -e 's:/\\/:g')
+if [ -z "$3" ];then
+[ -f $1 ]&&  sed -i ":$NR:d" $2
+echo "$1">>$2
+elif [ "$3" == shan ];then
+[ -f $1 ]&&  sed -i ":$NR:d" $2
+else
+[ -f $2 ]&& sed -i "s:$3.*:$NR:g" $2
+fi
 }
 
 pzdns() {
@@ -55,9 +57,12 @@ fi
 if [ ! -f /etc/vpn-ipt.bak ]; then
 iptables-save>/etc/vpn-ipt.bak
 fi
+sziptables "-D nat -A POSTROUTING -j MASQUERADE" 
+sziptables "-D FORWARD -s 192.168.10.0/24 -j ACCEPT"
 sziptables "-t nat -A POSTROUTING -j MASQUERADE" 
 sziptables "-A FORWARD -s 192.168.10.0/24 -j ACCEPT"
 for i in 81:110 112:442 444:1720 1726:3388 3390:5900 ;do
+sziptables "-D INPUT -p tcp --dport $i -j DROP"
 sziptables "-A INPUT -p tcp --dport $i -j DROP"
 done
 pzdns
@@ -67,13 +72,14 @@ sysctl -p
 ip addr|grep global\ eth|while read LINK ip peer gay global pppdev ;do
 yip=$(echo $ip|sed -e 's:/..::g')
 done
+if [ -d /tc/network ]; then
 cd /etc/network
 iptables-save >/etc/network/iptables.up.rules
 iptables-restore</etc/network/iptables.up.rules
 iptables-apply 2>&1 >/dev/null &
 modprobe ip_tables
 vpn-pptp auto >/dev/null
-
+fi
 
 }
 
@@ -151,13 +157,9 @@ fwq1() {
 [ -f /etc/ppp/options.pptpd ] && OPTIONS=/etc/ppp/options.pptpd
 [ -f /etc/ppp/pptpd-options ] && OPTIONS=/etc/ppp/pptpd-options
 setip="net.ipv4.ip_forward"
-tee <<cfg>/etc/pptpd.conf
-option $OPTIONS
-logwtmp
-connections 15
-localip 192.168.10.199
-remoteip 192.168.10.150-230,192.168.10.245
-cfg
+xpz "connections 15" /etc/pptpd.conf "onections "
+xpz "localip 192.168.10.199" /etc/pptpd.conf "localip "
+xpz "remoteip 192.168.10.150-230,192.168.10.245" /etc/pptpd.conf "remoteip "
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
 sysctl -p 
 for a in apt-get apt yum dnf ;do
@@ -203,9 +205,11 @@ tee <<service>/etc/init.d/okvpn
 # Description:       Auto Start PPTP VPN By sjchenkan
 ### END INIT INFO
 export PATH=/bin:/sbin:$PATH
-iptables-restore</etc/network/iptables.up.rules
+if [ -d /tc/network ]; then
+ｕiptables-restore</etc/network/iptables.up.rules
 iptables-apply 2>&1 >/dev/null &
 modprobe ip_tables
+fi
 case "\$1" in
 start) /bin/vpn-pptp auto 2>&1 >tmp/vpnook.log & ;;
 stop) echo not stop ;;
