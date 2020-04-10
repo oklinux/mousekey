@@ -1,3 +1,4 @@
+
 #!/bin/bash
 #!/bin/bash
 
@@ -26,14 +27,14 @@ vpn
 fi
 }
 xpz() {
-NR=$(echo "$1"|sed -e 's:/\\/:g')
+NR=$(echo "$1"|sed -e 's:/:\\/:g')
 if [ -z "$3" ];then
-[ -f $1 ]&&  sed -i ":$NR:d" $2
+[ -f "$2" ]&&  sed -i "/$NR/d" $2
 echo "$1">>$2
 elif [ "$3" == shan ];then
-[ -f $1 ]&&  sed -i ":$NR:d" $2
+[ -f "$2" ]&&  sed -i "/$NR/d" $2
 else
-[ -f $2 ]&& sed -i "s:$3.*:$NR:g" $2
+[ -f "$2" ]&& sed -i "s/$3.*/$NR/g" $2
 fi
 }
 
@@ -44,9 +45,11 @@ dns="
 114.114.114.114
 180.78.78.78
 8.8.8.8"
+xpz "127.0.0.5" /etc/resolv.conf shan
 for d in $dns ;do
 xpz "nameserver $d" /etc/resolv.conf
 done
+exit
 }
 
 FHQ() {
@@ -249,10 +252,11 @@ esac
 case "$1" in
 auto) zidong &;;
 zf)zf1 $2 $3 $4;;
+dns) pzdns ;;
 iptables) FHQ ;;
 defsrv)  fwq1 ;;
 srvuser)YH $2 $3;;
-*) khd  "$1";
+*) khd  "$1";;
 esac
  
 
