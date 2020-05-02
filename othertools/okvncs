@@ -108,7 +108,7 @@ xrdp() {
 tee <<xxrdp>~/.Xsession
 #!/bin/bash
 
-for i in startxfce4 startkde konsole ;do
+for i in startxfce4 startkde gnome-session konsole ;do
 type -p \$i && \$i && break
 done
 xxrdp
