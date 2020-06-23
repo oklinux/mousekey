@@ -40,6 +40,8 @@ apt install apt-mirror;fi
 apt-mirror
 done
 umount $ML/mirr/$FWQ
+mkdir -p $ML/.deb/$JC
+[ -d "$ML/mirr" -a "$LX" == "app" ] && cp -rf $(find $ML/mirr/ -name "*.deb") $ML/.deb/$JC/
 chown -R okapps:okapps $ML
 chmod -R 755 $ML
 jlapt
@@ -110,8 +112,6 @@ cd ..
 }
 
 jlapt() {
-mkdir -p $ML/.deb/$JC
-[ -d "$ML/mirr" -a "$LX" == "app" ] && cp -rf $(find $ML/mirr/ -name "*deb") $ML/.deb/$JC/
 scdeb $ML/.deb/$JC/*
 if [ ! -e /usr/bin/dpkg-scanpackages ];then
 apt-get -y install dpkg-dev ;fi
@@ -406,7 +406,7 @@ DQML=$(pwd)
 
 
 case $1 in
-start)daoroot $1;startinst;;
+setup)daoroot $1;startinst;;
 *.deb) cnf scdeb "$@" ;;
 build) cnf jlapt $2 & ;;
 tb) cnf mirapt $2 & ;;
