@@ -1,0 +1,14 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = https://gitee.com/oklinux/mousekey
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = k
+	merge = refs/heads/master
+[remote "k"]
+	url = https://github.com/oklinux/mousekey
+	fetch = +refs/heads/*:refs/remotes/k/*
