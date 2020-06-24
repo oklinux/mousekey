@@ -274,12 +274,16 @@ passwd okapps</home/.okappscnf
 }
 
 zidong() {
+zdtb=$(date +%d)
 export HOME=/home/okapps
 chmod -R 777 $ML
 okftp
+case $zdtb$TB in
+*5y) $0 tb & ;;
+esac
 while [ k == k ];do
 sudo -u okapps $0 build 2>&1 >/tmp/okapps.log &
-sleep 43200
+sleep 21600
 done
 }
 
@@ -387,6 +391,7 @@ LX=app
 ZZ=lroapps
 BB=2.0
 FWQ=
+TB=n
 DH=
 BJFWQ=okapps.oukan.online
 SSHFWQ="okapps@oukan.online"
