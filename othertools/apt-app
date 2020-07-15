@@ -21,6 +21,7 @@ deb-src http://$FWQ/ $DH-proposed main restricted universe multiverse
 deb-src http://$FWQ/ $DH-backports main restricted universe multiverse
 "
 fi
+xzdeb
 for i in i386 amd64 ;do
 tee <<file>/etc/apt/mirror.list
 ############# config ##################
@@ -41,12 +42,33 @@ apt-mirror
 done
 umount $ML/mirr/$FWQ
 mkdir -p $ML/.deb/$JC
-[ -d "$ML/mirr" -a "$LX" == "app" ] && cp -rf $(find $ML/mirr/ -name "*.deb") $ML/.deb/$JC/
+for d in $(find $ML/mirr/ -name "*.deb") ;do
+[ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirr" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
+done
 chown -R okapps:okapps $ML
 chmod -R 755 $ML
 jlapt
 
+
 }
+
+xzdeb() {
+dq=$(pwd)
+mkdir -p $ML/mirr/dl
+cd $ML/mirr/dl
+for i in $XZAPP ;do
+deblb=$(curl $i|sed -n '/\.deb/p'|\
+sed -e 's/deb.*/deb/g' |\
+sed -e 's/.*href="//g' )
+for d in $deblb ;do
+[ ! -f $d -a ! -f $ML/$JC/.look/$d.look ] && wget $i/$d & 
+done
+done
+cd "$dq"
+}
+
+
+
 
 yapt() {
 mkdir -p $1/$3-$2 ;cd $1
@@ -91,7 +113,9 @@ cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
 apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
 mkdir -p ../tmp/deb-$2
+mkdir -p .look
 for Y in $(ls deb-$2/);do
+[ ! -f .look/$Y.look ]&& ecoo >.look/$Y.look
 mv deb-$2/$Y ../tmp/deb-$2/ ;done
 sed -n '/Filename/p' $3-$2/Packages|while read a b;do
 mv -f ../tmp/$b deb-$2/
@@ -279,7 +303,7 @@ export HOME=/home/okapps
 chmod -R 777 $ML
 okftp
 case $zdtb$TB in
-*5y) $0 tb & ;;
+*5y) mirapt & ;;
 esac
 while [ k == k ];do
 sudo -u okapps $0 build 2>&1 >/tmp/okapps.log &
@@ -400,6 +424,9 @@ ML=/home/wwwroot/lroapps
 JX="
 
 "
+XZAPP="
+
+"
 okcnf
 . /etc/okapps
 mkdir -p $ML
@@ -414,6 +441,7 @@ case $1 in
 setup)daoroot $1;startinst;;
 *.deb) cnf scdeb "$@" ;;
 build) cnf jlapt $2 & ;;
+down) cnf xzdeb $2 & ;;
 tb) cnf mirapt $2 & ;;
 auto) cnf zidong & ;;
 ftp) okftp "$@";;
