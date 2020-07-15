@@ -3,10 +3,10 @@
 
 mirapt() {
 daoroot $1
-mkdir -p $ML/morror-$JC/$FWQ
+mkdir -p $ML/mirror-$JC/$FWQ
 
 if [ ! -z "$FWQ" -a ! -z "$DH" ];then
-mount -o bind $ML/$JC $ML/morror-$JC/$FWQ
+mount -o bind $ML/$JC $ML/mirror-$JC/$FWQ
 JX="
 deb http://$FWQ/ $DH main restricted universe multiverse
 deb http://$FWQ/ $DH-security main restricted universe multiverse
@@ -26,9 +26,9 @@ for i in i386 amd64 ;do
 tee <<file>/etc/apt/mirror.list
 ############# config ##################
 
-set base_path $ML/morror-$JC
+set base_path $ML/mirror-$JC
 set defaultarch $i
-set mirror_path  $ML/morror-$JC
+set mirror_path  $ML/mirror-$JC
 set nthreads     25
 set _tilde 0
 
@@ -40,10 +40,10 @@ if [ ! -f /usr/bin/apt-mirror ];then
 apt install apt-mirror;fi
 apt-mirror
 done
-umount $ML/morror-$JC/$FWQ
+umount $ML/mirror-$JC/$FWQ
 mkdir -p $ML/.deb/$JC
-for d in $(find $ML/morror-$JC/ -name "*.deb") ;do
-[ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/morror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
+for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
+[ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
 done
 chown -R okapps:okapps $ML
 chmod -R 755 $ML
@@ -54,8 +54,8 @@ jlapt
 
 xzdeb() {
 dq=$(pwd)
-mkdir -p $ML/morror-$JC/dl
-cd $ML/morror-$JC/dl
+mkdir -p $ML/mirror-$JC/dl
+cd $ML/mirror-$JC/dl
 for i in $XZAPP ;do
 deblb=$(curl $i|sed -n '/\.deb/p'|\
 sed -e 's/deb.*/deb/g' |\
