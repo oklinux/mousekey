@@ -61,7 +61,7 @@ deblb=$(curl $i|sed -n '/\.deb/p'|\
 sed -e 's/deb.*/deb/g' |\
 sed -e 's/.*href="//g' )
 for d in $deblb ;do
-[ ! -f $d -a ! -f $ML/$JC/.look/$d.look ] && wget $i/$d & 
+[ ! -f $d -a ! -f $ML/$JC/.look/$d.look ] && sleep 3 && wget $i/$d & 
 done
 done
 cd "$dq"
