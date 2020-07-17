@@ -112,6 +112,8 @@ dpkg-scanpackages deb-$2 /dev/null >$3-$2/Packages
 cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
 apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
+if [ ! -f .okapps.look ]; then
+echo >.okapps.look
 mkdir -p ../tmp/deb-$2
 mkdir -p .look
 for Y in $(ls deb-$2/);do
@@ -120,7 +122,8 @@ mv deb-$2/$Y ../tmp/deb-$2/ ;done
 sed -n '/Filename/p' $3-$2/Packages|while read a b;do
 mv -f ../tmp/$b deb-$2/
 done
-;;
+rm .okapps.look
+fi ;;
 esac
 
 # gpg -abs --default-key $gpgkey -o $3-$2/Release.gpg $3-$2/Release
