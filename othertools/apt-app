@@ -1,3 +1,4 @@
+
 #!/bin/bash
 #!/bin/bash
 
@@ -42,9 +43,6 @@ apt-mirror
 done
 umount $ML/mirror-$JC/$FWQ
 mkdir -p $ML/.deb/$JC
-for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
-[ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
-done
 chown -R okapps:okapps $ML
 chmod -R 755 $ML
 jlapt
@@ -107,13 +105,13 @@ apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
 ;;
 *)
+if [ ! -f .okapps.look ]; then
+echo >.okapps.look
 echo "正在生成$2软件包列表，请耐心等待。。。。。。"
 dpkg-scanpackages deb-$2 /dev/null >$3-$2/Packages 
 cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
 apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
-if [ ! -f .okapps.look ]; then
-echo >.okapps.look
 mkdir -p ../tmp/deb-$2
 mkdir -p .look
 for Y in $(ls deb-$2/);do
@@ -139,7 +137,6 @@ cd ..
 }
 
 jlapt() {
-scdeb $ML/.deb/$JC/*
 if [ ! -e /usr/bin/dpkg-scanpackages ];then
 apt-get -y install dpkg-dev ;fi
 
@@ -152,6 +149,11 @@ cp .$JC-linux.sub $HOME/.okapps-key.sub
 gpg --import .$JC-linux.sub ;fi
 
 yuan=""
+for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
+[ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
+done
+scdeb $ML/.deb/$JC/*
+
 case $LX in
 os)
 if [ -d $JC/apt-amd64 ];then
@@ -166,6 +168,7 @@ list=/etc/apt/sources.list;;
 app)
 yapt $JC amd64 app
 yapt $JC i386 app
+yapt $JC arm64 app
 yapt $JC loongson mips
 list=/etc/apt/sources.list.d/$JC.list;;
 esac
@@ -214,11 +217,11 @@ arch=$(dpkg-deb --info "$a"|grep "Architecture")
 case "$arch" in
 *amd64*|*all*) cpu=amd64;;
 *i386*) cpu=i386;;
+*arm64*) cpu=arm64;;
 *mips*) cpu=loongson;;
 esac
 if [ ! -z "$cpu" ];then
 mkdir -p $ML/$JC/deb-$cpu
-
 mv "$a" $ML/$JC/deb-$cpu/
 fi ;fi ;done
 cd $ML
