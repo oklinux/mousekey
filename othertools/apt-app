@@ -53,13 +53,15 @@ xzdeb() {
 dq=$(pwd)
 mkdir -p $ML/mirror-$JC/dl
 cd $ML/mirror-$JC/dl
+debmc=""
+echo >$ML/$JC/.look/0123.look
 for i in $XZAPP ;do
 deblb=$(curl $i|sed -n '/\.deb/p'|\
 sed -e 's/deb.*/deb/g' |\
 sed -e 's/.*href="//g' )
 for d in $deblb 0123 ;do
-b=$(echo "$d"|sed -e 's/-[0-9].*//g')
-[ ! -z "$debmc" -a "$debmc" != "$b" -a ! -f $d -a ! -f $ML/$JC/.look/$d.look ] && sleep 3 && wget $i/$d & 
+b=$(echo "$d"|sed -e 's/_[0-9].*_//g')
+[ ! -z "$debmc" -a "$debmc" != "$b" -a ! -f $c -a ! -f $ML/$JC/.look/$c.look ] && sleep 3 && wget $i/$d & 
 c=$d
 debmc=$b
 done
