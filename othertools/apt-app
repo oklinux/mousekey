@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #!/bin/bash
 
@@ -58,8 +57,11 @@ for i in $XZAPP ;do
 deblb=$(curl $i|sed -n '/\.deb/p'|\
 sed -e 's/deb.*/deb/g' |\
 sed -e 's/.*href="//g' )
-for d in $deblb ;do
-[ ! -f $d -a ! -f $ML/$JC/.look/$d.look ] && sleep 3 && wget $i/$d & 
+for d in $deblb 0123 ;do
+b=$(echo "$d"|sed -e 's/-[0-9].*//g')
+[ ! -z "$debmc" -a "$debmc" != "$b" -a ! -f $d -a ! -f $ML/$JC/.look/$d.look ] && sleep 3 && wget $i/$d & 
+c=$d
+debmc=$b
 done
 done
 cd "$dq"
@@ -115,7 +117,7 @@ rm $3-$2/InRelease $3-$2/Release.gpg -rf
 mkdir -p ../tmp/deb-$2
 mkdir -p .look
 for Y in $(ls deb-$2/);do
-[ ! -f .look/$Y.look ]&& ecoo >.look/$Y.look
+[ ! -f .look/$Y.look ]&& echo >.look/$Y.look
 mv deb-$2/$Y ../tmp/deb-$2/ ;done
 sed -n '/Filename/p' $3-$2/Packages|while read a b;do
 mv -f ../tmp/$b deb-$2/
