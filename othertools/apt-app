@@ -61,7 +61,9 @@ sed -e 's/deb.*/deb/g' |\
 sed -e 's/.*href="//g' )
 for d in $deblb 0123 ;do
 b=$(echo "$d"|sed -e 's/_[0-9].*_//g')
-[ ! -z "$debmc" -a "$debmc" != "$b" -a ! -f $c -a ! -f $ML/$JC/.look/$c.look ] && sleep 3 && wget $i/$c &
+if [ ! -z "$debmc" -a "$debmc" != "$b" -a ! -f "$c" -a ! -f "$ML/$JC/.look/$c.look" ] ;then
+wget -c -N "$i/$c" &
+sleep 10;fi
 c=$d
 debmc=$b
 done
