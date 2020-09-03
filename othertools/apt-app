@@ -224,7 +224,7 @@ arch=$(dpkg-deb --info "$a"|grep "Architecture")
 case "$arch" in
 *amd64*|*all*) cpu=amd64;;
 *i386*) cpu=i386;;
-*arm64*) cpu=arm64;;
+*arm*) cpu=arm64;;
 *mips*) cpu=loongson;;
 esac
 if [ ! -z "$cpu" ];then
