@@ -185,7 +185,10 @@ tee <<rtf>$JC/$JC-apt.list
 $yuan
 
 rtf
-
+case $JC in
+*-libs);;
+*)
+[ -f $JC-libs/$JC-libs-apt.list ]&& cat $JC-libs/$JC-libs-apt.list >>$JC/$JC-apt.list
 
 case $0 in
 ./*|/bin/*)
@@ -213,7 +216,8 @@ rm $JC-linux.pub
 apt update
 ttttt
 
-
+;;
+esac
 }
 
 scdeb() {
