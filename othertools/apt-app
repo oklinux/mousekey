@@ -54,18 +54,23 @@ dq=$(pwd)
 mkdir -p $ML/mirror-$JC/dl
 cd $ML/mirror-$JC/dl
 debmc=""
+mkdir -p $ML/$JC/.look
 echo >$ML/$JC/.look/0123.look
 for i in $XZAPP ;do
 deblb=$(curl $i|sed -n '/\.deb/p'|\
 sed -e 's/deb.*/deb/g' |\
 sed -e 's/.*href="//g' )
 for d in $deblb 0123 ;do
+case "$d" in
+*_ppc*|*_armhf*);;
+*)
 b=$(echo "$d"|sed -e 's/_[0-9].*_//g')
-if [ ! -z "$debmc" -a "$debmc" != "$b" -a ! -f "$c" -a ! -f "$ML/$JC/.look/$c.look" ] ;then
-wget -c -N "$i/$c" &
+[ "$b" != "$debmc" -a ! -z "$debmc" ] && if [ ! -f "$c" -a ! -f "$ML/$JC/.look/$c.look" ] ;then
+wget -c -N "$i$c" &
 sleep 10;fi
 c=$d
-debmc=$b
+debmc=$b ;;
+esac
 done
 done
 cd "$dq"
@@ -156,6 +161,7 @@ cp .$JC-linux.sub $HOME/.okapps-key.sub
 gpg --import .$JC-linux.sub ;fi
 
 yuan=""
+mkdir -p $ML/.deb/$JC
 for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
 [ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
 done
