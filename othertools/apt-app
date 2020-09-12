@@ -166,6 +166,7 @@ for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
 [ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
 done
 scdeb $ML/.deb/$JC/*
+relib
 
 case $LX in
 os)
@@ -244,8 +245,29 @@ fi ;fi ;done
 cd $ML
 }
 
-zhdeb() {
+relib() {
+libdeb="$ML/$JC/deb-*/libqtcore*deb"
+case $JC in
+*-libs)
+for lib in $libdeb ;do
+if [ -f "$lib" ];then
+dpkg-deb -R "$lib" rebuild-$$
+cd rebuild-$$
+rm DEBIAN/conffiles DEBIAN/md5sums DEBIAN/symbols -rf
+rm etc/xdg usr/lib/*-linux-gnu/qt-default -rf
+sed -i  "s/dfsg.*/dfsg-0$JC/g" DEBIAN/control
+sed -i  '/Original-Maintainer/d' DEBIAN/control
+echo "Original-Maintainer:chenoukan@qomogoo.org">> DEBIAN/control
+cd ..
+mv "$lib" "$ML/tmp"
+dpkg-deb -b rebuild-$$ "$lib"
+rm rebuild-$$ -rf
+fi
+done ;;
+esac
+}
 
+zhdeb() {
 cd "$DQML"
 if [ -f "$1" ];then
 dpkg-deb -R "$1" rebuild-$$
@@ -254,6 +276,7 @@ mkdir -p usr/share/applications
 cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
 sed -i  's/deepin-elf-verilf//g' DEBIAN/control
 cd ..
+mv "$1" "$ML/tmp"
 dpkg-deb -b rebuild-$$ "$1"
 rm rebuild-$$ -rf
 fi
@@ -480,6 +503,7 @@ setup)daoroot $1;startinst;;
 *.deb) cnf scdeb "$@" ;;
 build) cnf jlapt $2 & ;;
 rebuild)zhdeb "$2";;
+relib) cnf relib ;;
 down) cnf xzdeb $2 & ;;
 tb) cnf mirapt $2 & ;;
 auto) cnf zidong & ;;
