@@ -255,7 +255,6 @@ dpkg-deb -R "$lib" rebuild-$$
 cd rebuild-$$
 rm DEBIAN/conffiles DEBIAN/md5sums DEBIAN/symbols -rf
 rm etc/xdg usr/lib/*-linux-gnu/qt-default -rf
-sed -i  "s/dfsg.*/dfsg-0$JC/g" DEBIAN/control
 sed -i  '/Original-Maintainer/d' DEBIAN/control
 echo "Original-Maintainer:chenoukan@qomogoo.org">> DEBIAN/control
 cd ..
