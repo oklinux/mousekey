@@ -166,7 +166,6 @@ for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
 [ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
 done
 scdeb $ML/.deb/$JC/*
-relib
 
 case $LX in
 os)
@@ -246,15 +245,32 @@ cd $ML
 }
 
 relib() {
-libdeb="$ML/$JC/deb-*/libqtcore*deb"
+libdeb="
+$ML/$JC/deb-*/libqtcore4*deb
+$ML/$JC/deb-*/libqtgui4*deb
+$ML/$JC/deb-*/libqtdbus4*deb
+$ML/$JC/deb-*/qdbus_*deb
+$ML/$JC/deb-*/qt4-*deb
+$ML/$JC/deb-*/libqt4-*deb"
 case $JC in
 *-libs)
+jlapt
 for lib in $libdeb ;do
 if [ -f "$lib" ];then
 dpkg-deb -R "$lib" rebuild-$$
+tarlib=$(basename "$lib")
 cd rebuild-$$
+case "$lib" in
+*qtcore4*)
 rm DEBIAN/conffiles DEBIAN/md5sums DEBIAN/symbols -rf
-rm etc/xdg usr/lib/*-linux-gnu/qt-default -rf
+[ ! -f usr/$tarlib.tar ]&& tar cf usr/$tarlib.tar etc/xdg usr/lib/*-linux-gnu/qt-default
+rm etc/xdg usr/lib/*-linux-gnu/qt-default -rf ;;
+*qtdbus4*)
+sed -i  '/Breaks:/d' DEBIAN/control
+sed -i  '/Replaces:/d' DEBIAN/control ;;
+esac
+sed -i  's/[0-9]ubuntu/8/g' DEBIAN/control
+sed -i  's/dfsg-../dfsg-50/g' DEBIAN/control
 sed -i  '/Original-Maintainer/d' DEBIAN/control
 echo "Original-Maintainer:chenoukan@qomogoo.org">> DEBIAN/control
 cd ..
@@ -262,7 +278,8 @@ mv "$lib" "$ML/tmp"
 dpkg-deb -b rebuild-$$ "$lib"
 rm rebuild-$$ -rf
 fi
-done ;;
+done
+jlapt 2>/dev/null ;;
 esac
 }
 
