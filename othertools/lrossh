@@ -67,7 +67,7 @@ sshadd $2 $3 $4;fi
 if [ ok3 == "ok$#" ];then
 sshadd $2 $3 ;fi
 if [ ok2 == "ok$#" ];then
-[ -f ~/.okssh/$2 ] && . ~/.okssh/$2 && sshadd $ssh $port ;fi
+[ -f ~/.okssh/$2 ] && . ~/.okssh/$2 && sshadd $2 $ssh $port ;fi
 exit ;;
 edit)
  [ -f ~/.okssh/$2 ] && nano ~/.okssh/$2 ;
