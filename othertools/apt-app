@@ -57,7 +57,25 @@ debmc=""
 mkdir -p $ML/$JC/.look
 echo >$ML/$JC/.look/0123.look
 for i in $XZAPP ;do
-deblb=$(curl $i|sed -n '/\.deb/p'|\
+case $i in
+*/)xzdeb1 $i;;
+*-/-*)
+ia=$(echo $i|sed -e 's:.*-/-::g')
+ib=$(echo $i|sed -e 's:-/-.*:/:g')
+kkdeblb=$(curl $ib|sed -n "/$ia/p"|\
+sed -e 's/.*href="//g' |\
+sed -e 's/\".*//g' |\
+sed -e 's/<.*//g' )
+for ci in $kkdeblb;do
+xzdeb1 $ib$ci
+done ;;
+esac
+done
+cd "$dq"
+}
+
+xzdeb1() {
+deblb=$(curl "$1"|sed -n '/\.deb/p'|\
 sed -e 's/deb.*/deb/g' |\
 sed -e 's/.*href="//g' )
 for d in $deblb 0123 ;do
@@ -66,14 +84,12 @@ case "$d" in
 *)
 b=$(echo "$d"|sed -e 's/_[0-9].*_//g')
 [ "$b" != "$debmc" -a ! -z "$debmc" ] && [ ! -f "$c" ] && if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
-wget -c -N "$i$c" &
+wget -c -N "$1$c" &
 sleep 2;fi
 c=$d
 debmc=$b ;;
 esac
 done
-done
-cd "$dq"
 }
 
 
