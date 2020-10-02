@@ -59,10 +59,22 @@ echo >$ML/$JC/.look/0123.look
 for i in $XZAPP ;do
 case $i in
 */)xzdeb1 $i;;
+*-/-)
+ia=$(echo $i|sed -e 's:.*-/-::g')
+for ib in [a-z] [0-9] ;do
+kkdeblb=$(curl $ib|sed -n ":$ia/:p"|\
+sed -e 's/.*href="//g' |\
+sed -e 's/\".*//g' |\
+sed -e 's/<.*//g' )
+for ci in $kkdeblb;do
+xzdeb $ib$ci-/-$ib
+done
+done ;;
 *-/-*)
 ia=$(echo $i|sed -e 's:.*-/-::g')
 ib=$(echo $i|sed -e 's:-/-.*:/:g')
 kkdeblb=$(curl $ib|sed -n "/$ia/p"|\
+
 sed -e 's/.*href="//g' |\
 sed -e 's/\".*//g' |\
 sed -e 's/<.*//g' )
@@ -78,6 +90,7 @@ xzdeb1() {
 deblb=$(curl "$1"|sed -n '/\.deb/p'|\
 sed -e 's/deb.*/deb/g' |\
 sed -e 's/.*href="//g' )
+echo $deblb >>$ML/.DEB.LIST
 for d in $deblb 0123 ;do
 case "$d" in
 *_ppc*|*_armhf*);;
@@ -484,6 +497,7 @@ kd=$(echo $(id;date +%m)|base64 -i|sed -n '1p')
 echo $kd$ka$kb|tr -d '[ |=|\-]'>~/.ssh/mm$(basename "$0").key ;fi
 pass="$(cat ~/.ssh/mm$(basename "$0").key)" 
 kb=$(echo $(md5sum /etc/passwd)|base64 -i|sed -n '1p')
+
 kd=$(echo $(id;date +%m)|base64 -i|sed -n '1p')
 pass=$(echo "$pass"|sed -e "s/$kd//g")
 echo "$pass=="|sed -e "s/$kb//g"|base64 -d|sudo -S bash "$0" "$@" 
@@ -536,7 +550,8 @@ setup)daoroot $1;startinst;;
 build) cnf jlapt $2 & ;;
 rebuild)zhdeb "$2";;
 relib) cnf relib ;;
-down) cnf xzdeb $2 & ;;
+down) echo > $ML/.DEB.LIST
+cnf xzdeb $2 & ;;
 tb) cnf mirapt $2 & ;;
 auto) cnf zidong & ;;
 ftp) okftp "$@";;
