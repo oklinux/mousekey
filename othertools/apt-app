@@ -259,6 +259,9 @@ scdeb() {
 cd "$DQML"
 for a in $@ ;do
 if [ -f "$a" ];  then
+case $a in
+com.*|cn.*)$0 rebuild $a;;
+esac
 arch=$(dpkg-deb --info "$a"|grep "Architecture")
 case "$arch" in
 *amd64*|*all*) cpu=amd64;;
