@@ -51,10 +51,9 @@ jlapt
 
 xzdeb() {
 dq=$(pwd)
-mkdir -p $ML/mirror-$JC/dl
-cd $ML/mirror-$JC/dl
 debmc=""
 mkdir -p $ML/$JC/.look
+cd $ML/$JC/.look
 echo >$ML/$JC/.look/0123.look
 for i in $XZAPP ;do
 case $i in
@@ -97,7 +96,8 @@ case "$d" in
 *)
 b=$(echo "$d"|sed -e 's/_[0-9].*_//g')
 [ "$b" != "$debmc" -a ! -z "$debmc" ] && [ ! -f "$c" ] && if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
-wget -c -N "$1$c" &
+echo "wget -c -N \"$1$c\" && $0 $c">$c.look
+sh ./$c.look &
 sleep 2;fi
 c=$d
 debmc=$b ;;
