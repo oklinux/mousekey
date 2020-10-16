@@ -44,6 +44,10 @@ umount $ML/mirror-$JC/$FWQ
 mkdir -p $ML/.deb/$JC
 chown -R okapps:okapps $ML
 chmod -R 755 $ML
+mkdir -p $ML/.deb/$JC
+for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
+[ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
+done
 jlapt
 
 
@@ -56,39 +60,48 @@ mkdir -p $ML/$JC/.look
 cd $ML/$JC/.look
 echo >$ML/$JC/.look/0123.look
 for i in $XZAPP ;do
-case $i in
-*/)xzdeb1 $i;;
+xzdeb1 $i
+done
+cd "$dq"
+}
+
+xzdeb1() {
+case $1 in
+*/)
+deblb=$(curl "$1"|sed -n '/\.deb/p'|\
+sed -e 's/deb.*/deb/g' |\
+sed -e 's/.*href="//g' )
+ic=$1
+xzdeb1 deb;;
 *-/-)
-ia=$(echo $i|sed -e 's:.*-/-::g')
+ia=$(echo $1|sed -e 's:.*-/-::g')
 for ib in [a-z] [0-9] ;do
 kkdeblb=$(curl $ib|sed -n ":$ia/:p"|\
 sed -e 's/.*href="//g' |\
 sed -e 's/\".*//g' |\
 sed -e 's/<.*//g' )
 for ci in $kkdeblb;do
-xzdeb $ib$ci-/-$ib
+xzdeb1 $ib$ci-/-$ib
 done
 done ;;
 *-/-*)
-ia=$(echo $i|sed -e 's:.*-/-::g')
-ib=$(echo $i|sed -e 's:-/-.*:/:g')
+ia=$(echo $1|sed -e 's:.*-/-::g')
+ib=$(echo $1|sed -e 's:-/-.*:/:g')
 kkdeblb=$(curl $ib|sed -n "/$ia/p"|\
-
 sed -e 's/.*href="//g' |\
 sed -e 's/\".*//g' |\
 sed -e 's/<.*//g' )
 for ci in $kkdeblb;do
 xzdeb1 $ib$ci
 done ;;
-esac
-done
-cd "$dq"
-}
-
-xzdeb1() {
-deblb=$(curl "$1"|sed -n '/\.deb/p'|\
-sed -e 's/deb.*/deb/g' |\
-sed -e 's/.*href="//g' )
+*/dists*)
+ia=$(echo $1|sed -e 's:.*Packages-::g')
+ib=$(echo $1|sed -e 's:Packages-.*:Packages:g')
+ic=$(echo $1|sed -e 's:/dists/.*:/:g')
+deblb=$(curl $ib|sed -n "/Filename:/p"|\
+sed -e "s/Filename:/g"|sed -N "/$ia/p" )
+xzdeb1 deb ;;
+deb)
 echo $deblb >>$ML/.DEB.LIST
 for d in $deblb 0123 ;do
 case "$d" in
@@ -96,13 +109,16 @@ case "$d" in
 *)
 b=$(echo "$d"|sed -e 's/_[0-9].*_//g')
 [ "$b" != "$debmc" -a ! -z "$debmc" ] && [ ! -f "$c" ] && if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
-echo "wget -c -N \"$1$c\" && $0 $c">$c.look
+echo "wget -c -N \"$ic$ccc\" && $0 $c">$c.look
 sh ./$c.look &
 sleep 2;fi
-c=$d
+ccc=$d
+c=$(basename $d)
 debmc=$b ;;
 esac
-done
+done;;
+esac
+
 }
 
 
@@ -190,10 +206,6 @@ cp .$JC-linux.sub $HOME/.okapps-key.sub
 gpg --import .$JC-linux.sub ;fi
 
 yuan=""
-mkdir -p $ML/.deb/$JC
-for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
-[ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
-done
 scdeb $ML/.deb/$JC/*
 
 case $LX in
