@@ -58,6 +58,7 @@ dq=$(pwd)
 debmc=""
 mkdir -p $ML/$JC/.look
 cd $ML/$JC/.look
+rm *Packages -rf
 echo >$ML/$JC/.look/0123.look
 for i in $XZAPP ;do
 xzdeb1 $i
@@ -98,8 +99,10 @@ done ;;
 ia=$(echo $1|sed -e 's:.*Packages-::g')
 ib=$(echo $1|sed -e 's:Packages-.*:Packages:g')
 ic=$(echo $1|sed -e 's:/dists/.*:/:g')
-deblb=$(curl $ib|sed -n "/Filename:/p"|\
-sed -e "s/Filename:/g"|sed -N "/$ia/p" )
+id=$(echo "$ib"|sed -e 's:[/|\:]:-:g')
+[ ! -f "$id" ] && curl "$ib" > "$id"
+deblb=$(cat "$id"|sed -n "/Filename:/p"|\
+sed -e "s/Filename://g"|sed -n "/\/$ia/p" )
 xzdeb1 deb ;;
 deb)
 echo $deblb >>$ML/.DEB.LIST
