@@ -58,8 +58,15 @@ dq=$(pwd)
 debmc=""
 mkdir -p $ML/$JC/.look
 cd $ML/$JC/.look
-rm *Packages -rf
+rm ./*Packages -rf
 echo >$ML/$JC/.look/0123.look
+echo "$JX"|while read ja jb jc jd je;do
+if [ ! -z "$jc" -a ! -z "$jd" ] ;then
+xzdeb1 "$jb/dists/$jc/$jd/binary-i386/Packages-$je"
+xzdeb1 "$jb/dists/$jc/$jd/binary-amd64/Packages-$je"
+xzdeb1 "$jb/dists/$jc/$jd/binary-mios64le/Packages-$je"
+xzdeb1 "$jb/dists/$jc/$jd/binary-arm64/Packages-$je"
+fi;done
 for i in $XZAPP ;do
 xzdeb1 $i
 done
@@ -72,6 +79,7 @@ case $1 in
 deblb=$(curl "$1"|sed -n '/\.deb/p'|\
 sed -e 's/deb.*/deb/g' |\
 sed -e 's/.*href="//g' )
+ia=""
 ic=$1
 xzdeb1 deb;;
 *-/-)
@@ -100,10 +108,13 @@ ia=$(echo $1|sed -e 's:.*Packages-::g')
 ib=$(echo $1|sed -e 's:Packages-.*:Packages:g')
 ic=$(echo $1|sed -e 's:/dists/.*:/:g')
 id=$(echo "$ib"|sed -e 's:[/|\:]:-:g')
-[ ! -f "$id" ] && curl "$ib" > "$id"
-deblb=$(cat "$id"|sed -n "/Filename:/p"|\
-sed -e "s/Filename://g"|sed -n "/\/$ia/p" )
-xzdeb1 deb ;;
+[ ! -f "$id" ] && curl "$ib" > "$id" 2>/dev/null
+for deblb in $(cat "$id"|sed -n "/Filename:/p"|\
+sed -e "s/Filename://g") ;do
+case $deblb in
+*/$ia*)xzdeb1 deb ;;
+esac
+done;;
 deb)
 echo $deblb >>$ML/.DEB.LIST
 for d in $deblb 0123 ;do
@@ -173,7 +184,10 @@ apt-ftparchive release $3-$2 >>$3-$2/Release
 rm $3-$2/InRelease $3-$2/Release.gpg -rf
 mkdir -p ../tmp/deb-$2
 mkdir -p .look
+mkdir -p info/$2
 for Y in $(ls deb-$2/);do
+name=$(dpkg-deb --info deb-$2/$Y|grep "Package:"|sed -e 's/.*://g')
+dpkg-deb --info "deb-$2/$Y">"info/$2/$name"
 [ ! -f .look/$Y.look ]&& echo >.look/$Y.look
 mv deb-$2/$Y ../tmp/deb-$2/ ;done
 sed -n '/Filename/p' $3-$2/Packages|while read a b;do
@@ -188,6 +202,7 @@ if [ ! -f "$3-$2/Release.gpg" ];then
 # gpg --clearsign --default-key $gpgkey -o $3-$2/InRelease $3-$2/Release
 gpg -abs  -o $3-$2/Release.gpg $3-$2/Release
 gpg --clearsign -o $3-$2/InRelease $3-$2/Release
+tar czf info.tgz info/
 yuan="deb http://$BJFWQ/$1 $3-$2/
 # deb-src http://$BJFWQ/$1 $3-$2/
 $yuan"
@@ -210,6 +225,7 @@ gpg --import .$JC-linux.sub ;fi
 
 yuan=""
 scdeb $ML/.deb/$JC/*
+rm $JC/info -rf
 
 case $LX in
 os)
