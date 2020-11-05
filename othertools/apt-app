@@ -57,7 +57,7 @@ debmc=""
 mkdir -p $ML/$JC/.look
 cd $ML/$JC/.look
 sd=/dev/shm/okapps-list.lokk
-[ ! -f $sd ]&&rm ./*Packages -rf
+[ ! -f $sd ]&&rm ./*Packages ./*.deb -rf
 echo "sleep 85533;rm $sd">$sd;sh $sd &
 echo "$JX"|while read ja jb jc jd je;do
 if [ ! -z "$jc" -a ! -z "$jd" ] ;then
@@ -448,14 +448,14 @@ passwd okapps</home/.okappscnf
 }
 
 zidong() {
-zdtb=$(date +%d)
 export HOME=/home/okapps
 chmod -R 777 $ML
 okftp
-case $zdtb$TB in
-*5|*1|*8) xzdeb & ;;
-esac
 while [ k == k ];do
+case $(date +%d) in
+*5|*1|*8) xzdeb &
+sleep 3600 ;;
+esac
 sudo -u okapps $0 build 2>&1 >/tmp/okapps.log &
 sleep 21600
 done
