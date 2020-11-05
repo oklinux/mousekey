@@ -112,6 +112,7 @@ url=$(echo "$1"|sed -e 's/deb-http/http/g')
 deblb=$(curl "$url"|sed -n "/\.deb\"/p")
 deblb=$(echo "$deblb"|sed -e 's/deb".*/deb/g')
 deblb=$(echo "$deblb"|sed -e "s/.*href=\"//g")
+deblb=$(echo "$deblb"|sed -e "s/.*\"http/http/g")
 ia=""
 ic=$1
 xzdeb1 deb;;
