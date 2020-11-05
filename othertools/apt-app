@@ -1,5 +1,5 @@
 #!/bin/bash
-#!/bin/bash
+#!/bin/bas
 
 mirapt() {
 daoroot $1
@@ -21,7 +21,7 @@ deb-src http://$FWQ/ $DH-proposed main restricted universe multiverse
 deb-src http://$FWQ/ $DH-backports main restricted universe multiverse
 "
 fi
-xzdeb
+
 for i in i386 amd64 ;do
 tee <<file>/etc/apt/mirror.list
 ############# config ##################
@@ -49,8 +49,6 @@ for d in $(find $ML/mirror-$JC/ -name "*.deb") ;do
 [ ! -f $ML/$JC/.look/$(basename $d).look -a -d "$ML/mirror-$JC" -a "$LX" == "app" ] && cp -rf $d $ML/.deb/$JC/
 done
 jlapt
-
-
 }
 
 xzdeb() {
@@ -87,17 +85,11 @@ cd "$dq"
 
 xzdeb1() {
 case $1 in
-*/)
-deblb=$(curl "$1"|sed -n '/\.deb/p'|\
-sed -e 's/deb.*/deb/g' |\
-sed -e 's/.*href="//g' )
-ia=""
-ic=$1
-xzdeb1 deb;;
-*-/-)
-ia=$(echo $1|sed -e 's:.*-/-::g')
-for ib in [a-z] [0-9] ;do
-kkdeblb=$(curl $ib|sed -n ":$ia/:p"|\
+dir-*|*-/-)
+preurl=$(echo "$1"|sed -e 's/dir-http/http/g')
+rrl=$(echo "$preurl"|sed -e 's:-/-.*:/:g')
+for name in [a-z] [0-9] lib[a-z] ;do
+kkdeblb=$(curl "$url"|sed -n ":$name/\":p"|\
 sed -e 's/.*href="//g' |\
 sed -e 's/\".*//g' |\
 sed -e 's/<.*//g' )
@@ -115,6 +107,14 @@ sed -e 's/<.*//g' )
 for ci in $kkdeblb;do
 xzdeb1 $ib$ci
 done ;;
+*/|deb-*)
+url=$(echo "$1"|sed -e 's/deb-http/http/g')
+deblb=$(curl "$url"|sed -n "/\.deb\"/p")
+deblb=$(echo "$deblb"|sed -e 's/deb".*/deb/g')
+deblb=$(echo "$deblb"|sed -e "s/.*href=\"//g")
+ia=""
+ic=$1
+xzdeb1 deb;;
 */dists*)
 ia=$(echo $1|sed -e 's:.*Packages-::g')
 ib=$(echo $1|sed -e 's:Packages-.*:Packages:g')
@@ -132,6 +132,10 @@ echo $deblb >>$ML/.DEB.LIST
 for d in $deblb ;do
 case "$d" in
 *_ppc*|*_armhf*);;
+http*)c=$(basename $d)
+if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
+echo "[ ! -f \"$c\" ] && wget -c -N \"$d\" && $0 $c && rm $c.down">$c.down
+echo >"$c.look";fi;;
 *)c=$(basename $d)
 if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
 echo "[ ! -f \"$c\" ] && wget -c -N \"$ic$d\" && $0 $c && rm $c.down">$c.down
@@ -142,8 +146,6 @@ done
 esac
 
 }
-
-
 
 
 yapt() {
