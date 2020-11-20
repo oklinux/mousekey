@@ -1,5 +1,5 @@
 #!/bin/bash
-#!/bin/bas
+#!/bin/bash
 
 mirapt() {
 daoroot $1
@@ -63,7 +63,7 @@ echo "$JX"|while read ja jb jc jd je;do
 if [ ! -z "$jc" -a ! -z "$jd" ] ;then
 xzdeb1 "$jb/dists/$jc/$jd/binary-i386/Packages-$je"
 xzdeb1 "$jb/dists/$jc/$jd/binary-amd64/Packages-$je"
-xzdeb1 "$jb/dists/$jc/$jd/binary-mios64le/Packages-$je"
+xzdeb1 "$jb/dists/$jc/$jd/binary-mips64le/Packages-$je"
 xzdeb1 "$jb/dists/$jc/$jd/binary-arm64/Packages-$je"
 fi;done
 for i in $XZAPP ;do
@@ -306,8 +306,8 @@ com.*|cn.*)$0 rebuild $a;;
 esac
 arch=$(dpkg-deb --info "$a"|grep "Architecture")
 case "$arch" in
-*amd64*|*all*) cpu=amd64;;
-*i386*) cpu=i386;;
+*x64*|*amd64*|*all*) cpu=amd64;;
+*ia32*|*i386*) cpu=i386;;
 *arm*) cpu=arm64;;
 *mips*) cpu=loongson;;
 esac
@@ -363,13 +363,69 @@ if [ -f "$1" ];then
 dpkg-deb -R "$1" rebuild-$$
 cd rebuild-$$
 mkdir -p usr/share/applications
-cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
+[ -d /opt/apps ] && cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
 sed -i  's/deepin-elf-verilf//g' DEBIAN/control
 cd ..
 mv "$1" "$ML/tmp"
 dpkg-deb -b rebuild-$$ "$1"
 rm rebuild-$$ -rf
 fi
+}
+zhdebarch() {
+cd "$DQML"
+exec="$ML/.electron/mips.tgz"
+pname=$(echo "$1"|sed -e 's/amd64//g')
+pname=$(echo "$pname"|sed -e 's/.deb/mips64el.deb/g')
+if [ -f "$exec" ]; then
+[ ! -f /usr/bin/alien ]&& apt install alien
+if [ -f "$1" ];then
+dpkg-deb -R "$1" rebuild-$$
+cd rebuild-$$
+path=$(pwd)
+mkdir -p tmp
+mkdir -p usr/bin
+mkdir -p usr/share/applications
+sed -i  's/deepin-elf-verilf//g' DEBIAN/control
+sed -i  's/amd64/mips64el/g' DEBIAN/control
+dira=$(dirname $(find . -name resources))
+if [ -d "$dira/resources" ];then
+cd tmp
+tar xzf "$exec"
+cd $(ls)
+patha=$(pwd)
+cd "$path"
+for lib in $(ls $patha/lib*);do
+lib=$(basename $lib)
+[ ! -f "$dira/$lib" ]&& rm "$patha/$lib"
+done
+[ -d /opt/apps ] && cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
+cat $(find usr/share -name "*.desktop")|grep Exec |while read ename a c d;do
+ename=$(basename $(echo $ename|sed -e 's/Exec=//g'))
+tee <<bashfile>usr/bin/$ename
+#!/bin/sh
+/$dira/$ename \$@
+bashfile
+chmod +x usr/bin/$ename
+mv "$patha/electron" "$patha/$ename"
+break;done
+cp -rf "$dira/resources" "$patha"
+rm "$dira"/* -rf
+mv -f $patha/* $dira/
+rm -rf tmp
+else
+cd ..
+rm rebuild-$$ -rf
+exit
+fi
+cd ..
+dpkg-deb -b rebuild-$$ "$pname"
+mkdir -p $ML/$JC/rpm-loogson
+alien -r --scripts "$pname"
+mv *mips64el.rpm $ML/$JC/rpm-loogson/
+scdeb "$pname"
+rm rebuild-$$ -rf
+fi;fi
+exit
 }
 
 startinst() {
@@ -597,6 +653,7 @@ rebuild)zhdeb "$2";;
 relib) cnf relib ;;
 down) echo > $ML/.DEB.LIST
 cnf xzdeb $2 & ;;
+mips)cnf zhdebarch $2 & ;;
 tb) cnf mirapt $2 & ;;
 auto) cnf zidong & ;;
 ftp) okftp "$@";;
