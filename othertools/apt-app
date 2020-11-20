@@ -394,6 +394,7 @@ tar xzf "$exec"
 cd $(ls)
 patha=$(pwd)
 cd "$path"
+echo >"$dira/libminigbm.so"
 for lib in $(ls $patha/lib*);do
 lib=$(basename $lib)
 [ ! -f "$dira/$lib" ]&& rm "$patha/$lib"
