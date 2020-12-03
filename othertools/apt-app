@@ -85,6 +85,12 @@ cd "$dq"
 
 xzdeb1() {
 case $1 in
+*--nodown--*)
+url=$(echo "$1"|sed -e 's:--nodown--.*::g')
+nodown=$(echo "$1"|sed -e 's/.*--nodown--//g')
+nodown="$(echo "$nodown"|sed -e 's:/: :g')"
+xzdeb1 "$url"
+nodown="";;
 dir-*|*-/-)
 preurl=$(echo "$1"|sed -e 's/dir-http/http/g')
 rrl=$(echo "$preurl"|sed -e 's:-/-.*:/:g')
@@ -138,6 +144,11 @@ if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
 echo "[ ! -f \"$c\" ] && wget -c -N \"$d\" && $0 $c && rm $c.down">$c.down
 echo >"$c.look";fi;;
 *)c=$(basename $d)
+for i in $nodown;do
+case "$c" in
+$i*)echo >$c.look ;;
+esac
+done
 if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
 echo "[ ! -f \"$c\" ] && wget -c -N \"$ic$d\" && $0 $c && rm $c.down">$c.down
 echo >"$c.look";fi;;
@@ -486,8 +497,11 @@ update-rc.d okapps start 80 2 3 4 5 . stop 80 1 .
 update-rc.d okapps enable
 elif type -p systemctl ;then
 systemctl enable okapps ;fi
-useradd okapps -m -s /bin/nologin-ok
-cp "$DQML/$0" /bin/okapps
+useradd okapps -m -s /bin/nologin
+case "$0" in
+/*)cp "$0" /bin/okapps ;;
+*)cp "$DQML/$0" /bin/okapps ;;
+esac
 chmod +x /bin/okapps
 chmod -R +w /home/okapps
 chown -R okapps:okapps /home/okapps
