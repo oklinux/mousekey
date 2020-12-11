@@ -72,6 +72,7 @@ done
 echo >zzzzzzz.down
 for c in *.down ;do
 b=$(echo "$c"|sed -e 's/_[0-9].*_//g')
+b=$(echo "$b"|sed -e 's/_[0-9].*-[0-9]\.//g')
 [ -f "$c" ] && if [ "$b" != "$debmc" -a ! -z "$debmc" ];then
 sh ./$e &
 sleep 2
