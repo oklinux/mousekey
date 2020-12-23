@@ -311,10 +311,10 @@ esac
 
 scdeb() {
 cd "$DQML"
-for a in $@ ;do
+for a in $@ *.deb ;do
 if [ -f "$a" ];  then
 case $a in
-com.*|cn.*)$0 rebuild $a;;
+sign.*|signed_*|*_uos*|org.*|com.*|cn.*)$0 rebuild $a;;
 esac
 arch=$(dpkg-deb --info "$a"|grep "Architecture")
 case "$arch" in
@@ -663,7 +663,7 @@ DQML=$(pwd)
 
 case $1 in
 setup)daoroot $1;startinst;;
-*.deb) cnf scdeb "$@" ;;
+deb|*.deb) cnf scdeb "$@" ;;
 build) cnf jlapt $2 & ;;
 rebuild)zhdeb "$2";;
 relib) cnf relib ;;
