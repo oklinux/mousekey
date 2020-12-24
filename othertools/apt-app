@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #!/bin/bash
 
@@ -312,7 +311,7 @@ esac
 
 scdeb() {
 cd "$DQML"
-[ "$1" == "deb" ]&& scdeb $(ls ./*.deb)
+[ "deb" == "$1" ] && scdeb $(ls ./*.deb)
 for a in $@ ;do
 if [ -f "$a" ];  then
 case $a in
