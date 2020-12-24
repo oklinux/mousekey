@@ -378,7 +378,8 @@ dpkg-deb -R "$1" rebuild-$$
 cd rebuild-$$
 mkdir -p usr/share/applications
 [ -d /opt/apps ] && cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
-sed -i  's/deepin-elf-verilf//g' DEBIAN/control
+sed -i  's/deepin-elf-verify[^\,]*\,//g' DEBIAN/control
+sed -i  's/deepin-elf-verify[^\,]*//g' DEBIAN/control
 cd ..
 mv "$1" "$ML/tmp"
 dpkg-deb -b rebuild-$$ "$1"
