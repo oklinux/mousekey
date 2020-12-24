@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 #!/bin/bash
 
 mirapt() {
@@ -377,7 +377,7 @@ if [ -f "$1" ];then
 dpkg-deb -R "$1" rebuild-$$
 cd rebuild-$$
 mkdir -p usr/share/applications
-[ -d /opt/apps ] && cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
+[ -d opt/apps ] && cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
 sed -i  's/deepin-elf-verify[^\,]*\,//g' DEBIAN/control
 sed -i  's/deepin-elf-verify[^\,]*//g' DEBIAN/control
 cd ..
@@ -414,7 +414,7 @@ for lib in $(ls $patha/lib*);do
 lib=$(basename $lib)
 [ ! -f "$dira/$lib" ]&& rm "$patha/$lib"
 done
-[ -d /opt/apps ] && cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
+[ -d opt/apps ] && cp $(find opt/apps/ -name "*.desktop") usr/share/applications/
 cat $(find usr/share -name "*.desktop")|grep Exec |while read ename a c d;do
 ename=$(basename $(echo $ename|sed -e 's/Exec=//g'))
 tee <<bashfile>usr/bin/$ename
