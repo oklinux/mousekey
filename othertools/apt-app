@@ -311,7 +311,8 @@ esac
 
 scdeb() {
 cd "$DQML"
-for a in $@ *.deb ;do
+[ "$1" == "deb" ]&& scdeb $(ls ./*.deb)
+for a in $@ ;do
 if [ -f "$a" ];  then
 case $a in
 sign.*|signed_*|*_uos*|org.*|com.*|cn.*)$0 rebuild $a;;
