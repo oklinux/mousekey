@@ -209,12 +209,12 @@ mkdir -p ../tmp/deb-$2
 mkdir -p .look
 mkdir -p info/$2
 for Y in $(ls deb-$2/);do
-name=$(dpkg-deb --info deb-$2/$Y|grep "Package:"|sed -e 's/.*://g')
-dpkg-deb --info "deb-$2/$Y">"info/$2/$(echo $name)"
+name=$(echo $(dpkg-deb --info $2/$Y|grep "Package:"|sed -e 's/.*://g'|tr -d '\r')|sed -e 's/ .*//g')
+dpkg-deb --info "deb-$2/$Y">"info/$2/$name"
 [ ! -f .look/$Y.look ]&& echo >.look/$Y.look
 mv deb-$2/$Y ../tmp/deb-$2/ ;done
 sed -n '/Filename/p' $3-$2/Packages|while read a b;do
-mv -f ../tmp/$b deb-$2/
+[ -f "../tmp/$b" ] && mv -f ../tmp/$b deb-$2/
 done
 rm /dev/shm/okapps.look
 fi ;;
@@ -318,9 +318,9 @@ case $a in
 sign.*|signed_*|*_uos_*|org.*|com.*|cn.*)$0 rebuild $a;;
 */sign.*|*/signed_*|*/org.*|*/com.*|*/cn.*)$0 rebuild $a;;
 esac
-name=$(echo $(dpkg-deb --info $a|grep "Package:"|sed -e 's/.*://g')|sed -e "s/[\'| ].*//g")
-ver=$(echo $(dpkg-deb --info $a|grep "Version:"|sed -e 's/.*://g')|sed -e "s/[\'| ].*//g")
-arch=$(echo $(dpkg-deb --info $a|grep "Architecture:"|sed -e 's/.*://g')|sed -e "s/[\'| ].*//g")
+name=$(echo $(dpkg-deb --info $a|grep "Package:"|sed -e 's/.*://g'|tr -d '\r')|sed -e 's/ .*//g')
+ver=$(echo $(dpkg-deb --info $a|grep "Version:"|sed -e 's/.*://g'|tr -d '\r'))
+arch=$(echo $(dpkg-deb --info $a|grep "Architecture:"|sed -e 's/.*://g'|tr -d '\r'))
 case "$arch" in
 *x64*|*amd64*|*all*) cpu=amd64;;
 *ia32*|*i386*) cpu=i386;;
