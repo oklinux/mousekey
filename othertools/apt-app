@@ -319,7 +319,7 @@ sign.*|signed_*|*_uos_*|org.*|com.*|cn.*)$0 rebuild $a;;
 */sign.*|*/signed_*|*/org.*|*/com.*|*/cn.*)$0 rebuild $a;;
 esac
 name=$(echo $(dpkg-deb --info $a|grep "Package:"|sed -e 's/.*://g'|tr -d '\r')|sed -e 's/ .*//g')
-ver=$(echo $(dpkg-deb --info $a|grep "Version:"|sed -e 's/.*://g'|tr -d '\r'))
+ver=$(echo $(dpkg-deb --info $a|grep "Version:"|sed -e 's/.*://g'|tr -d '\r')|sed -e 's/ .*//g')
 arch=$(echo $(dpkg-deb --info $a|grep "Architecture:"|sed -e 's/.*://g'|tr -d '\r'))
 case "$arch" in
 *x64*|*amd64*|*all*) cpu=amd64;;
