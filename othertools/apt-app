@@ -318,7 +318,9 @@ case $a in
 sign.*|signed_*|*_uos_*|org.*|com.*|cn.*)$0 rebuild $a;;
 */sign.*|*/signed_*|*/org.*|*/com.*|*/cn.*)$0 rebuild $a;;
 esac
-arch=$(dpkg-deb --info "$a"|grep "Architecture")
+name=$(echo $(dpkg-deb --info $a|grep "Package:"|sed -e 's/.*://g')|sed -e "s/[\'| ].*//g")
+ver=$(echo $(dpkg-deb --info $a|grep "Version:"|sed -e 's/.*://g')|sed -e "s/[\'| ].*//g")
+arch=$(echo $(dpkg-deb --info $a|grep "Architecture:"|sed -e 's/.*://g')|sed -e "s/[\'| ].*//g")
 case "$arch" in
 *x64*|*amd64*|*all*) cpu=amd64;;
 *ia32*|*i386*) cpu=i386;;
@@ -327,7 +329,7 @@ case "$arch" in
 esac
 if [ ! -z "$cpu" ];then
 mkdir -p $ML/$JC/deb-$cpu
-mv "$a" $ML/$JC/deb-$cpu/
+mv "$a" $ML/$JC/deb-$cpu/"$name""_$ver""_$arch.deb"
 fi ;fi ;done
 cd $ML
 }
