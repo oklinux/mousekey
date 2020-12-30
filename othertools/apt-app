@@ -350,6 +350,7 @@ icon=$(basename $(cat "$cc"|grep Icon|sed -e 's/Icon=//g'))
 case "$picon" in
 *.xpm)cp "$picon" "$ML/$JC/icons/$name.xpn";;
 *.png)cp "$picon" "$ML/$JC/icons/$name.png";;
+*.svg)cp "$picon" "$ML/$JC/icons/$name.svg";;
 esac
 done;done
 rm tmp-$$  -rf
@@ -411,7 +412,7 @@ LD_LIBRARY_DIR=\$LD_LIBRARY_DIR:$data/lib
 export \$LD_LIBRARY
 export \$LD_LIBRARY_DIR
 
-/$dira/files/$ename \$@
+/$daia/files/$ename \$@
 bashfile
 chmod +x $data/files/run-$ename
 case $edir in
@@ -424,13 +425,14 @@ done
 [ -d "usr/lib" ] &&mv -f "usr/lib" "$data/files/"
 [ -d "usr/lib64" ] &&mv -f "usr/lib64" "$data/files/"
 [ -d  "usr/share/doc" ] && mv -f usr/share/doc "$data/files/"
-mv -f usr/share/* "$data/entries/"
+mv -f usr/share/applications usr/share/autostart "$data/entries/" 2>/dev/null
 for cc in $(find $data/entries -name *.desktop) ;do
 sed -i "s:Exec.*$eame.:Exec=/$data/files/run-$ename :g" $cc
 icon=$(basename $(cat "$cc"|grep Icon|sed -e 's/Icon=//g'))
-for dd in $data/entries/icons $data/entries/p* ;do
+dicon="$data/entries/icons/hicolor";mkdir -p "$dicon"
+for dd in usr/share/icons usr/share/p* ;do
 [ -d "$dd" -a ! -z "$icon" ] && picon=$(find $dd/ -name $icon* |sed -n '1p')
-[ ! -z "$picon" ] && sed -i "s:Icon=.*:Icon=/$picon:g" $cc
+[ ! -z "$picon" ] &&mv "$picon" "$dicon" && sed -i "s:Icon=.*:Icon=/$dicon/$(basename $picon):g" $cc
 done
 done
 done
@@ -490,10 +492,18 @@ cd "$DQML"
 if [ -f "$1" ];then
 dpkg-deb -R "$1" rebuild-$$
 cd rebuild-$$
-mkdir -p usr/share
-[ -d opt/apps ] && cp $(find opt/apps/ -name "entries")/* usr/share/ -rf
+mkdir -p usr/share/applicatons
 sed -i  's/deepin-elf-verify[^\,]*\,//g' DEBIAN/control
 sed -i  's/deepin-elf-verify[^\,]*//g' DEBIAN/control
+[ -d  opt ] && for cc in $(find opt/ -name *.desktop) ;do
+icon=$(basename $(cat "$cc"|grep Icon|sed -e 's/Icon=//g'))
+for dd in opt/apps/*/entries/icons ;do
+[ -d "$dd" -a ! -z "$icon" ] && picon=$(find $dd/ -name $icon* |sed -n '1p')
+[ ! -z "$picon" ] && sed -i "s:Icon=.*:Icon=/$picon:g" $cc
+[ -f "$CC" ] && cp "$cc" usr/share/applications/ -rf
+
+done
+done
 cd ..
 mv "$1" "$ML/tmp"
 dpkg-deb -b rebuild-$$ "$1"
