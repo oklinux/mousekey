@@ -407,12 +407,13 @@ ename=$(basename $(echo $ename|sed -e 's/Exec=//g'))
 edir=$(dirname $(echo $ename|sed -e 's/Exec=//g'))
 tee <<bashfile>$data/files/run-$ename
 #!/bin/sh
-LD_LIBRARY=\$LD_LIBRARY:/$data/lib
-LD_LIBRARY_DIR=\$LD_LIBRARY_DIR:$data/lib
+LD_LIBRARY=/$data/lib:\$LD_LIBRARY
+LD_LIBRARY_DIR=/$data/lib:\$LD_LIBRARY_DIR
 export \$LD_LIBRARY
 export \$LD_LIBRARY_DIR
 
-/$data/files/$ename \$@
+cd "/$data/files/"
+./$ename \$@
 bashfile
 chmod +x $data/files/run-$ename
 case $edir in
