@@ -412,7 +412,7 @@ LD_LIBRARY_DIR=\$LD_LIBRARY_DIR:$data/lib
 export \$LD_LIBRARY
 export \$LD_LIBRARY_DIR
 
-/$daia/files/$ename \$@
+/$data/files/$ename \$@
 bashfile
 chmod +x $data/files/run-$ename
 case $edir in
@@ -427,12 +427,14 @@ done
 [ -d  "usr/share/doc" ] && mv -f usr/share/doc "$data/files/"
 mv -f usr/share/applications usr/share/autostart "$data/entries/" 2>/dev/null
 for cc in $(find $data/entries -name *.desktop) ;do
-sed -i "s:Exec.*$eame.:Exec=/$data/files/run-$ename :g" $cc
-icon=$(basename $(cat "$cc"|grep Icon|sed -e 's/Icon=//g'))
+ccc="$(dirname $cc)/$appid.$name.desktop"
+[ -f "$cc" ] && mv "$cc" "$ccc"
+sed -i "s:Exec.*$eame.:Exec=/$data/files/run-$ename :g" $ccc
+icon=$(basename $(cat "$ccc"|grep Icon|sed -e 's/Icon=//g'))
 dicon="$data/entries/icons/hicolor";mkdir -p "$dicon"
 for dd in usr/share/icons usr/share/p* ;do
 [ -d "$dd" -a ! -z "$icon" ] && picon=$(find $dd/ -name $icon* |sed -n '1p')
-[ ! -z "$picon" ] &&mv "$picon" "$dicon" && sed -i "s:Icon=.*:Icon=/$dicon/$(basename $picon):g" $cc
+[ ! -z "$picon" ] &&mv "$picon" "$dicon" && sed -i "s:Icon=.*:Icon=/$dicon/$(basename $picon):g" $ccc
 done
 done
 done
