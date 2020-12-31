@@ -495,7 +495,7 @@ cd "$DQML"
 if [ -f "$1" ];then
 dpkg-deb -R "$1" rebuild-$$
 cd rebuild-$$
-mkdir -p usr/share/applicatons
+mkdir -p usr/share/applications
 sed -i  's/deepin-elf-verify[^\,]*\,//g' DEBIAN/control
 sed -i  's/deepin-elf-verify[^\,]*//g' DEBIAN/control
 [ -d  opt ] && for cc in $(find opt/ -name *.desktop) ;do
@@ -503,7 +503,7 @@ icon=$(basename $(cat "$cc"|grep Icon|sed -e 's/Icon=//g'))
 for dd in opt/apps/*/entries/icons ;do
 [ -d "$dd" -a ! -z "$icon" ] && picon=$(find $dd/ -name $icon* |sed -n '1p')
 [ ! -z "$picon" ] && sed -i "s:Icon=.*:Icon=/$picon:g" $cc
-[ -f "$CC" ] && cp "$cc" usr/share/applications/ -rf
+[ -f "$cc" ] && cp "$cc" usr/share/applications/ -rf
 
 done
 done
