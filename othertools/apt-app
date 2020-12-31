@@ -440,7 +440,7 @@ done
 done
 rm usr etc -rf
 sed -i "s/Package:.*/Package: $appid.$name/g" DEBIAN/control
-sed -i "s/Architecture:.*/Architecture: $cpu/g" DEBIAN/control
+sed -i "s/Architecture:.*/Architecture: $arch/g" DEBIAN/control
 sed -i "s/$arch/$arch/g" DEBIAN/control
 cd ..
 dpkg-deb -b uos-$$ "$appid.$name""_$ver""_uos_$arch.deb"
