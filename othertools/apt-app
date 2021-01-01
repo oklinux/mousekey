@@ -407,13 +407,12 @@ ename=$(basename $(echo $ename|sed -e 's/Exec=//g'))
 edir=$(dirname $(echo $ename|sed -e 's/Exec=//g'))
 tee <<bashfile>$data/files/run-$ename
 #!/bin/sh
-LD_LIBRARY=/$data/lib:\$LD_LIBRARY
-LD_LIBRARY_DIR=/$data/lib:\$LD_LIBRARY_DIR
-export \$LD_LIBRARY
-export \$LD_LIBRARY_DIR
+LD_LIBRARY="/$data/files:/$data/files/lib:\$LD_LIBRARY"
+LD_LIBRARY_DIR="$data/files:/$data/files/lib:\$LD_LIBRARY_DIR"
+export LD_LIBRARY
+export LD_LIBRARY_DIR
 
-cd "/$data/files/"
-./$ename \$@
+"/$data/files/$ename" \$@
 bashfile
 chmod +x $data/files/run-$ename
 case $edir in
@@ -430,7 +429,10 @@ mv -f usr/share/applications usr/share/autostart "$data/entries/" 2>/dev/null
 for cc in $(find $data/entries -name *.desktop) ;do
 ccc="$(dirname $cc)/$appid.$name.desktop"
 [ -f "$cc" ] && mv "$cc" "$ccc"
-sed -i "s:Exec.*$eame.:Exec=/$data/files/run-$ename :g" $ccc
+sed -i '/StartupNotify/d' "$ccc"
+for ee in GNOME GTK QT Gnome ;do
+sed -i "s/$ee;//g" "$ccc" ;done
+sed -i "s:Exec.*$eame.:Exec=/$data/files/run-$ename %U:g" $ccc
 icon=$(basename $(cat "$ccc"|grep Icon|sed -e 's/Icon=//g'))
 dicon="$data/entries/icons/hicolor";mkdir -p "$dicon"
 for dd in usr/share/icons usr/share/p* ;do
