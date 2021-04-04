@@ -41,7 +41,7 @@ fi;done
 shelltxt
 chmod +x /etc/okfrp/$vncgl-okvncs
 bash /etc/okfrp/$vncgl-okvncs
-iokfrp "$vncgl"
+okfrp "$vncgl"
 sleep 2
 ln -s /etc/okfrp/$vncgl-okvncs /etc/okfrp/$1.look
 fi
