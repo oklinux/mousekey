@@ -74,7 +74,7 @@ okfrp $vncgl
 vnc=$(expr "$vnc" + 1 )
 sleep 2;done;fi
 
-sleep 60
+sleep 1800
 while [ k = k ]; do
 case  `date +%H` in
 03*)
