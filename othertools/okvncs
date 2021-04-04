@@ -1,16 +1,63 @@
 #!/bin/bash
 
 vncstart() {
+vncgl=5950
+for dd in /etc/okfrp/*-okvncs ;do
+[ -f "$dd" ]&& vncgl=$(expr "$vncgl" + 1 )&&
+ bash $dd && okfrp $vncgl
+done
+if [ ! -z "$1" ];then
+useradd $1 -m -d /home/$1 
+[ -d "/home/$1" ]&& desktop $1;fi
+vncstart1 &
+
+}
+desktop() {
+if [ ! -f /etc/okfrp/$1.look ];then
+tee <<shelltxt>/etc/okfrp/$vncgl-okvncs
+#!/bin/bash
+[ \$(id -u) == 0 ]&& su $1 -c \$0 && exit
+if [ -f \$HOME/.okvncps ];then
+mm=$vncgl\$\$ ;echo \$mm
+vncpasswd <<txt
+\$mm
+\$mm
+txt
+echo \$mm>\$HOME/.okvncps;fi
+echo \$mm >\$HOME/.okvncps
+for aa in mate-session gnome-session startxfce4 startkde ;do
+if type -p \$aa;then
+mkdir -p \$HOME/.vnc
+tee <<xp-vnc>\$HOME/.vnc/xstartup
+#!/bin/bash
+unset SESSION_NANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+while [ k = k ]; do
+exec /usr/bin/\$aa;sleep 14200;done
+xp-vnc
+chmod +x \$HOME/.vnc/xstartup
+vncserver -geometry 1600x900 :$vncgl
+fi;done
+shelltxt
+chmod +x /etc/okfrp/$vncgl-okvncs
+bash /etc/okfrp/$vncgl-okvncs
+iokfrp "$vncgl"
+sleep 2
+ln -s /etc/okfrp/$vncgl-okvncs /etc/okfrp/$1.look
+fi
+}
+
+vncstart1() {
 export HOME=/home/vncserver
-vncgl=3398
-for aa in konsole konsole startxfce4 startkde ;do
+for aa in konsole ;do
 if type -p $aa;then
 tee <<xp-vnc>$HOME/.vnc/xstartup
 while [ k = k ]; do
 "$aa" --fullscreen;sleep 14200;done
 xp-vnc
 chmod +x $HOME/.vnc/xstartup
-vncserver -geometry 1000x600 :$vncgl
+sudo -u vncuser vncserver -geometry 1000x600 :$vncgl
+okfrp $vncgl
 vncgl=$(expr "$vncgl" + 1 )
 sleep 2;fi;done
 
@@ -22,7 +69,8 @@ while [ k = k ]; do
 VBoxManage startvm "$i"
 sleep 133;done
 xp-vnc
-vncserver -geometry 970x540 :$vnc
+sudo -u vncuser vncserver -geometry 970x540 :$vnc
+okfrp $vncgl
 vnc=$(expr "$vnc" + 1 )
 sleep 2;done;fi
 
@@ -35,11 +83,47 @@ vncserver -kill :3399
 vncserver -kill :3398
 sleep 2000
 ;;
-*)sh "$0" run &
+*)sh "$0" run 2>&1 >/dev/null &
 exit ;;
 esac
 done
 }
+okfrp() {
+if type -p frpc ;then
+cnf=/etc/okfrp.conf
+lip="$2"
+[ -z "$lip" ]&& lip=127.0.0.1
+[ -f $cnf ] &&. $cnf
+[ -z "$server" ] && echo "请输入‘服务器IP 服务器端口  起始转发端口’"&& read server serverport startport
+[ -z "$startport" ]&& okfrp
+[ !  -f "$cnf" ]&& tee <<conf>$cnf
+server=$server
+serverport=$serverport
+startport=$startport
+conf
+for ff in /etc/okfrp/*.conf ;do
+[ -f "$ff" ] &&startport=$(expr "$startport" + 1) &&\
+frpc -c "$ff" >>/tmp/okftp-$$.log &
+done
+conf="/etc/okfrp/$lip-$1.conf"
+[ -z "$user" ]&& conf="/etc/okfrp/$lip-$1.conf"
+[ ! -f "$conf" ] && tee <<confg>"$conf"
+[common]
+server_addr = $server
+server_port = $serverport
+
+[frp$startport]
+type = tcp
+local_ip =  $lip
+local_port = $1
+remote_port = $startport
+confg
+frpc -c "$conf" >/tmp/okfrp-$$.log &
+
+
+fi
+}
+
 inst() {
 deb="vnc4server gcc firefox wqy-h* konsole xrdp  xrdp-pulseaudio*"
 if [ $(id -u) != 0 ];then
@@ -50,7 +134,7 @@ case "$0" in
 okvncs) ;;
 /bin/okvncs) ;;
 *)
-for d in $deb ;do
+type -p dpkg && for d in $deb ;do
 for a in apt-get apt yum dnf ;do
 type -p $a && sudo $a install $d -y && break
 done;done
@@ -78,7 +162,7 @@ echo [OK]
 }
 case "\$1" in
 start) OKOFF &
-sudo -u vncuser /bin/okvncs run 2>&1 >/tmp/okvncs.log &
+/bin/okvncs run 2>&1 >/tmp/okvncs.log &
 ;;
 stop) echo not stop ;;
 esac
@@ -92,10 +176,13 @@ update-rc.d okvncs-d enable ;fi
 if type -p systemctl ;then
 systemctl enable okvncs-d ;fi
 useradd vncuser -m -d /home/vncserver
+mkdir -p /etc/okfrp
+chmod -R 777 /etc/okfrp
+okfrp 22
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
 service okvncs-d start
-mm=ok$$ ;echo $mm
+mm=$4-$$ ;echo $mm
 su vncuser -c vncpasswd <<txt
 $mm
 $mm
@@ -116,6 +203,7 @@ xxrdp
 case "$1" in
 ins)inst ;;
 xrdp) xrdp ;;
+add) vncstart $2 ;;
 off)inst off $2;;
 run)vncstart ;;
 *)inst
