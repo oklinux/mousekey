@@ -5,26 +5,25 @@ vncgl=5950
 for dd in /etc/okfrp/*-okvncs ;do
 [ -f "$dd" ]&& vncgl=$(expr "$vncgl" + 1 )&&
  bash $dd && okfrp $vncgl
+sleep 2
 done
-if [ ! -z "$1" ];then
-useradd $1 -m -d /home/$1 
-[ -d "/home/$1" ]&& desktop $1;fi
+desktop $1
 vncstart1 &
 
 }
 desktop() {
-if [ ! -f /etc/okfrp/$1.look ];then
+[ ! -z "$1" ] && if [ ! -f /etc/okfrp/$1.look ];then
+[ -z "$2" ]&& mm=$vncgl$$ ;echo $mm
+useradd $1 -m -d /home/$1 -r -p "$2$mm"  -s /bin/bash
+su "$1" -c vncpasswd <<txt
+$mm
+$mm
+txt
 tee <<shelltxt>/etc/okfrp/$vncgl-okvncs
 #!/bin/bash
 [ \$(id -u) == 0 ]&& su $1 -c \$0 && exit
 if [ -f \$HOME/.okvncps ];then
-mm=$vncgl\$\$ ;echo \$mm
-vncpasswd <<txt
-\$mm
-\$mm
-txt
-echo \$mm>\$HOME/.okvncps;fi
-echo \$mm >\$HOME/.okvncps
+echo $mm>\$HOME/.okvncps;fi
 for aa in mate-session gnome-session startxfce4 startkde ;do
 if type -p \$aa;then
 mkdir -p \$HOME/.vnc
@@ -41,8 +40,8 @@ fi;done
 shelltxt
 chmod +x /etc/okfrp/$vncgl-okvncs
 bash /etc/okfrp/$vncgl-okvncs
-okfrp "$vncgl"
 sleep 2
+okfrp "$vncgl"
 ln -s /etc/okfrp/$vncgl-okvncs /etc/okfrp/$1.look
 fi
 }
@@ -94,17 +93,19 @@ cnf=/etc/okfrp.conf
 lip="$2"
 [ -z "$lip" ]&& lip=127.0.0.1
 [ -f $cnf ] &&. $cnf
-[ -z "$server" ] && echo "请输入‘服务器IP 服务器端口  起始转发端口’"&& read server serverport startport
-[ -z "$startport" ]&& okfrp
+[ ! -z "$remote_port" ] && for ff in /etc/okfrp/*.conf ;do
+if [ -f "$ff" ] ;then
+remote_port=$(expr "$remote_port" + 1 )
+frpc -c "$ff" >>/tmp/okftp-$$.log &
+sleep 1;fi
+done
+[ -z "$server" ] && echo "请输入‘服务器IP 服务器端口  起始转发端口’"&& read server serverport remote_port
+[ -z "$remote_port" ]&& okfrp
 [ !  -f "$cnf" ]&& tee <<conf>$cnf
 server=$server
 serverport=$serverport
-startport=$startport
+remote_port=$remote_port
 conf
-for ff in /etc/okfrp/*.conf ;do
-[ -f "$ff" ] &&startport=$(expr "$startport" + 1) &&\
-frpc -c "$ff" >>/tmp/okftp-$$.log &
-done
 conf="/etc/okfrp/$lip-$1.conf"
 [ -z "$user" ]&& conf="/etc/okfrp/$lip-$1.conf"
 [ ! -f "$conf" ] && tee <<confg>"$conf"
@@ -112,11 +113,11 @@ conf="/etc/okfrp/$lip-$1.conf"
 server_addr = $server
 server_port = $serverport
 
-[frp$startport]
+[frp$remote_port]
 type = tcp
 local_ip =  $lip
 local_port = $1
-remote_port = $startport
+remote_port = $remote_port
 confg
 frpc -c "$conf" >/tmp/okfrp-$$.log &
 
