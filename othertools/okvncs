@@ -21,7 +21,7 @@ $mm
 txt
 tee <<shelltxt>/etc/okfrp/$vncgl-okvncs
 #!/bin/bash
-[ \$(id -u) == 0 ]&& su $1 -c \$0 && exit
+[ root != $1  ] $& [ \$(id -u) == 0 ]&& su $1 -c \$0 && exit
 if [ -f \$HOME/.okvncps ];then
 echo "$mm" > \$HOME/.okvncps;fi
 for aa in mate-session gnome-session startxfce4 startkde ;do
