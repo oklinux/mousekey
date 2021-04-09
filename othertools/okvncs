@@ -17,18 +17,18 @@ fi
 desktop() {
 [ ! -z "$1" ] && if [ ! -f /etc/okfrp/$1.look ];then
 [ -z "$2" ]&& mm=$vncgl$$ ;echo $mm
+useradd $1 -m -d /home/$1 -r -p "$2$mm"  -s /bin/bash
 tee <<shelltxt>/etc/okfrp/$vncgl-okvncs
 #!/bin/bash
-type -p systemctl &&\
-type -p firewall-cmd &&\
-systemctl stop firewalld.service
-useradd $1 -m -d /home/$1 -r -p "$2$mm"  -s /bin/bash
 su "$1" -c vncpasswd <<txt
 $2$mm
 $2$mm
 txt
 [ root == $1 ] && export HOME=/root
 [ root != $1 ] && [ \$(id -u) == 0 ]&& su $1 -c \$0 && exit
+type -p systemctl &&\
+type -p firewall-cmd &&\
+systemctl stop firewalld.service
 for aa in mate-session gnome-session startxfce4 startkde ;do
 if type -p \$aa;then
 mkdir -p \$HOME/.vnc
