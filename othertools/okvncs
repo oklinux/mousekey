@@ -45,7 +45,6 @@ fi;done
 shelltxt
 chmod +x /etc/okfrp/$vncgl-okvncs
 bash /etc/okfrp/$vncgl-okvncs
-sleep 2
 okfrp "$vncgl"
 ln -s /etc/okfrp/$vncgl-okvncs /etc/okfrp/$1.look
 fi
@@ -63,7 +62,7 @@ chmod +x $HOME/.vnc/xstartup
 sudo -u vncuser vncserver -geometry 1000x600 :$vncgl
 okfrp $vncgl
 vncgl=$(expr "$vncgl" + 1 )
-sleep 2;fi;done
+sleep 1;fi;done
 
 vnc=1
 if [ -d "$HOME/VirtualBox VMs" ];then
@@ -77,21 +76,21 @@ sudo -u vncuser vncserver -geometry 970x540 :$vnc
 okfrp $vncgl
 vnc=$(expr "$vnc" + 1 )
 sleep 2;done;fi
+}
 
-sleep 1800
+autosrv() {
 while [ k = k ]; do
 case  `date +%H` in
 03*)
 vncserver -kill :3400
-vncserver -kill :3399
 vncserver -kill :3398
-sleep 2000
-;;
+sleep 2000;;
 *)sh "$0" run 2>&1 >/dev/null &
-exit ;;
+sleep 9400;;
 esac
 done
 }
+
 okfrp() {
 if type -p frpc ;then
 cnf=/etc/okfrp.conf
@@ -161,14 +160,15 @@ OKOFF() {
 while [ k = k ]; do
 case \`date +%H\` in
 \$guanji)poweroff ;;
-*) sleep 2000 ;;
+*) sleep 2000
+/bin/okvncs auto 2>&1 >/tmp/okvncs.log &
+;;
 esac
 done
 echo [OK]
 }
 case "\$1" in
 start) OKOFF &
-/bin/okvncs run 2>&1 >/tmp/okvncs.log &
 ;;
 stop) echo not stop ;;
 esac
@@ -212,7 +212,8 @@ xrdp) xrdp ;;
 add) vncstart $2 ;;
 off)inst off $2;;
 run)vncstart ;;
+auto) autosrv & ;;
 *)inst
 sudo -u vncuser  "$0" run 2>&1 >/dev/null &;;
 esac
-    
+
