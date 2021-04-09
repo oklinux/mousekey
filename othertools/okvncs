@@ -4,27 +4,31 @@ vncstart() {
 vncgl=50
 for dd in /etc/okfrp/*-okvncs ;do
 [ -f "$dd" ]&& vncgl=$(expr "$vncgl" + 1 )&&
- bash $dd && okfrp $(expr "5900" + "$vncgl")
-sleep 2
+ bash $dd && okfrp $(expr "5900" + "$vncgl")&&\
+ okfrp $(expr "5800" + "$vncgl")
 done
-desktop $1
+if [ ! -z "$1" ];then
+desktop $1 $2
+else
 vncstart1 &
+fi
 
 }
 desktop() {
 [ ! -z "$1" ] && if [ ! -f /etc/okfrp/$1.look ];then
 [ -z "$2" ]&& mm=$vncgl$$ ;echo $mm
-useradd $1 -m -d /home/$1 -r -p "$2$mm"  -s /bin/bash
-su "$1" -c vncpasswd <<txt
-$mm
-$mm
-txt
 tee <<shelltxt>/etc/okfrp/$vncgl-okvncs
 #!/bin/bash
+type -p systemctl &&\
+type -p firewall-cmd &&\
+systemctl stop firewalld.service
+useradd $1 -m -d /home/$1 -r -p "$2$mm"  -s /bin/bash
+su "$1" -c vncpasswd <<txt
+$2$mm
+$2$mm
+txt
 [ root == $1 ] && export HOME=/root
 [ root != $1 ] && [ \$(id -u) == 0 ]&& su $1 -c \$0 && exit
-if [ -f \$HOME/.okvncps ];then
-echo "$mm" > \$HOME/.okvncps;fi
 for aa in mate-session gnome-session startxfce4 startkde ;do
 if type -p \$aa;then
 mkdir -p \$HOME/.vnc
@@ -184,8 +188,6 @@ okfrp 22
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
 service okvncs-d start
-if type -p firewall-cmd ;then
-firewall-cmd --permanent --zone=public --add-service=vnc-server ;fi
 mm=$4-$$ ;echo $mm
 su vncuser -c vncpasswd <<txt
 $mm
