@@ -25,7 +25,9 @@ $2$mm
 $2$mm
 txt
 [ root == $1 ] && export HOME=/root
-[ root != $1 ] && [ \$(id -u) == 0 ]&& su $1 -c \$0 && exit
+if [ root != $1 ] ;then
+[ \$(id -u) == 0 ]&& su $1 -c \$0
+exit ; fi
 type -p systemctl &&\
 type -p firewall-cmd &&\
 systemctl stop firewalld.service
@@ -160,9 +162,8 @@ OKOFF() {
 while [ k = k ]; do
 case \`date +%H\` in
 \$guanji)poweroff ;;
-*) sleep 2000
-/bin/okvncs auto 2>&1 >/tmp/okvncs.log &
-;;
+*) /bin/okvncs auto 2>&1 >/tmp/okvncs.log &
+sleep 2500 ;;
 esac
 done
 echo [OK]
