@@ -20,13 +20,13 @@ desktop() {
 useradd $1 -m -d /home/$1 -r -p "$2$mm"  -s /bin/bash
 tee <<shelltxt>/etc/okfrp/$vncgl-okvncs
 #!/bin/bash
-su "$1" -c vncpasswd <<txt
+[ "pw" == "\$1" ] && su "$1" -c vncpasswd <<txt
 $2$mm
 $2$mm
 txt
 [ root == $1 ] && export HOME=/root
-if [ root != $1 ] ;then
-[ \$(id -u) == 0 ]&& su $1 -c \$0
+if [ root != $1 -a \$(id -u) == 0 ];then
+ su $1 -c \$0
 exit ; fi
 type -p systemctl &&\
 type -p firewall-cmd &&\
@@ -46,7 +46,7 @@ vncserver -geometry 1600x900 :$vncgl
 fi;done
 shelltxt
 chmod +x /etc/okfrp/$vncgl-okvncs
-bash /etc/okfrp/$vncgl-okvncs
+bash /etc/okfrp/$vncgl-okvncs pw
 okfrp "$vncgl"
 ln -s /etc/okfrp/$vncgl-okvncs /etc/okfrp/$1.look
 fi
