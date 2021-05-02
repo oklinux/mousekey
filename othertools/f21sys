@@ -25,20 +25,21 @@ cd
 export ALL_PROXY=socks5://127.0.0.1:10808
 export http_proxy=127.0.0.1:10809
 export https_proxy=127.0.0.1:10809
-if [ ! -d depot_tools ];then
+if [ ! -f depot_tools/.up-python3 ];then
 pydir=/usr/bin
 [ -f /usr/local/bin/python3 ]&& pydir=/usr/local/bin
 [ -f /usr/local/python3/bin/python3 ]&& pydir=/usr/local/python3/bin
 yum install git python3 nodejs npm -y
 git config --global http.postBuffer 50m
-tee <<str>temp.tmp
-[ ! -f \$BOOTSTRAP_PYTHON_BIN ]&&mkdir -p \$(dirname "\$BOOTSTRAP_PYTHON_BIN") &&ln -sf $pydir/python3 \$BOOTSTRAP_PYTHON_BIN
-str
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 if [ -d depot_tools ];then
-sed -i  '/BOOTSTRAP_PYTHON_BIN=/r temp.tmp' depot_tools/bootstrap_python3
-mkdir -p depot_tools/python-bin
-ln -sf $pydir/python3 depot_tools/python-bin/
+cd depot_tools
+tee <<str>.up-python3
+[ ! -f \$BOOTSTRAP_PYTHON_BIN ]&&mkdir -p \$(dirname "\$BOOTSTRAP_PYTHON_BIN") &&ln -sf $pydir/python3 \$BOOTSTRAP_PYTHON_BIN
+str
+sed -i  '/BOOTSTRAP_PYTHON_BIN=/r .up-python3' bootstrap_python3
+mkdir -p python-bin
+ln -sf $pydir/python3 python-bin/
 fi;fi
 export PATH=$PATH:~/depot_tools/
 mkdir -p ~/nwjs-build
@@ -47,19 +48,19 @@ echo "是否同步(y/n)？";read yn
 case "$yn" in
 y*|Y*)
 ~/depot_tools/gclient config --name=src https://chromium.googlesource.com/chromium/src
-gclient sync --With_brarch_heads
+gclient sync --with_branch_heads
 mkdir -p ~/nwjs-build/src/content/nw
 cd ~/nwjs-build/src/content/nw
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/nwjs
-gclient sync --With_brarch_heads
+gclient sync --with_branch_heads
 mkdir -p ~/nwjs-build/third_party/node-nw
 cd ~/nwjs-build/third_party/node-nw
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/node
-gclient sync --With_brarch_heads
+gclient sync --with_branch_heads
 mkdir -p ~/nwjs-build/src/v8
 cd ~/nwjs-build/src/v8
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/v8
-gclient sync --With_brarch_heads
+gclient sync --with_branch_heads
 ;;
 esac
 
