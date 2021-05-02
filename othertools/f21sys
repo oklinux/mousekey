@@ -1,0 +1,88 @@
+#!/bin/bash
+if [ -f /home/lsf/bin/cd ];then
+if [ ! -d /home/lsf/sysdev ];then
+mount -o bind /proc /home/lsf/proc
+mount -o bind /srv /home/lsf/srv
+mount -o bind /sys /home/lsf/sys
+mount -o bind /run /home/lsf/run
+mount -o bind /dev /home/lsf/dev
+fi
+sed -e '1,/bindata\//d' /bin/f21sys>/home/lsf/boot.sh
+chmod 777 /home/lsf/boot.sh
+chroot /home/lsf /boot.sh
+if [ -d /home/lsf/dev/shm ];then
+umount /home/lsf/proc
+umount /home/lsf/sys
+umount /home/lsf/srv
+umount /home/lsf/run
+umount /home/lsf/dev
+fi
+exit
+fi
+#/bindata//
+#!/bin/bash
+cd
+export ALL_PROXY=socks5://127.0.0.1:10808
+export http_proxy=127.0.0.1:10809
+export https_proxy=127.0.0.1:10809
+if [ ! -d depot_tools ];then
+pydir=/usr/bin
+[ -f /usr/local/bin/python3 ]&& pydir=/usr/local/bin
+[ -f /usr/local/python3/bin/python3 ]&& pydir=/usr/local/python3/bin
+yum install git python3 nodejs npm -y
+git config --global http.postBuffer 50m
+tee <<str>temp.tmp
+[ ! -f \$BOOTSTRAP_PYTHON_BIN ]&&mkdir -p \$(dirname "\$BOOTSTRAP_PYTHON_BIN") &&ln -sf $pydir/python3 \$BOOTSTRAP_PYTHON_BIN
+str
+git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+if [ -d depot_tools ];then
+sed -i  '/BOOTSTRAP_PYTHON_BIN=/r temp.tmp' depot_tools/bootstrap_python3
+mkdir -p depot_tools/python-bin
+ln -sf $pydir/python3 depot_tools/python-bin/
+fi;fi
+export PATH=$PATH:~/depot_tools/
+mkdir -p ~/nwjs-build
+cd ~/nwjs-build
+echo "是否同步(y/n)？";read yn
+case "$yn" in
+y*|Y*)
+~/depot_tools/gclient config --name=src https://chromium.googlesource.com/chromium/src
+gclient sync --With_brarch_heads
+mkdir -p ~/nwjs-build/src/content/nw
+cd ~/nwjs-build/src/content/nw
+~/depot_tools/gclient config --name=src https://github.com/nwjs/nwjs
+gclient sync --With_brarch_heads
+mkdir -p ~/nwjs-build/third_party/node-nw
+cd ~/nwjs-build/third_party/node-nw
+~/depot_tools/gclient config --name=src https://github.com/nwjs/node
+gclient sync --With_brarch_heads
+mkdir -p ~/nwjs-build/src/v8
+cd ~/nwjs-build/src/v8
+~/depot_tools/gclient config --name=src https://github.com/nwjs/v8
+gclient sync --With_brarch_heads
+;;
+esac
+
+cd ~/nwjs-build
+export GN_CONFIGS="{
+is_debug=false
+is_clang=false
+is_component_ffmpeg=true
+use_sysroot=false
+use_gold=false
+proprietary_codecs=true
+enable_widevine=false
+fatal_linker_warnings=false
+link_pulseaudio=true
+treat_warnings_as_errors=false
+nwjs_sdk=false
+}"
+ gn gen out/nw --args="${GN_CONFIG[*]}"
+ 
+ ninja-build -C out/nw nwjs
+ export GYP_DEFINES="target_arch=mips64el debug=false clang=false sysroot=false host_arch=mips64el"
+ GYP_CHROMIUM_NO_ACTION=0 ./src/build/gyp_chromium -I third_party/node-nw/common.gypi -D building_nw=1 third_party/node-nw/node.gyp
+
+ ninja-build -C out/Release node
+ ninja -C out/nw copy_node
+ 
