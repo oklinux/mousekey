@@ -48,16 +48,11 @@ for pyhome in $(find /usr/local/ -name python3.*) ;do
 [ -d "$pyhome" ]&&  export PYTHONHOME="$pyhome:$PYTHONHOME"
 done
 mkdir -p ~/nwjs-build
-cd ~/nwjs-build
-echo "是否同步(y/n)？";read yn
-case "$yn" in
-s)bash;exit ;;
-y*|Y*)
-~/depot_tools/gclient config --name=src https://chromium.googlesource.com/chromium/src
-gclient sync --with_branch_heads
+
+dosync() {
 mkdir -p ~/nwjs-build/src/content/nw
 cd ~/nwjs-build/src/content/nw
-~/depot_tools/gclient config --name=src https://github.com/nwjs/nwjs
+~/depot_tools/gclient config --name=src https://github.com/nwjs/nw.js
 gclient sync --with_branch_heads
 mkdir -p ~/nwjs-build/third_party/node-nw
 cd ~/nwjs-build/third_party/node-nw
@@ -67,7 +62,17 @@ mkdir -p ~/nwjs-build/src/v8
 cd ~/nwjs-build/src/v8
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/v8
 gclient sync --with_branch_heads
-;;
+}
+
+cd ~/nwjs-build
+echo "是否同步(y/n)？";read yn
+case "$yn" in
+s)bash;exit ;;
+3)dosync ;;
+y*|Y*)
+~/depot_tools/gclient config --name=src https://chromium.googlesource.com/chromium/src
+gclient sync --with_branch_heads
+dosync ;;
 esac
 
 cd ~/nwjs-build
