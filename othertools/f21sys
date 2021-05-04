@@ -32,7 +32,7 @@ export http_proxy=127.0.0.1:10809
 export https_proxy=127.0.0.1:10809
 if [ ! -f depot_tools/.up-python3 ];then
 yum install git python3 nodejs npm -y
-git config --global http.postBuffer 50m
+git config --global http.postBuffer 232333111
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 if [ -d depot_tools ];then
 cd depot_tools
@@ -43,7 +43,7 @@ sed -i  '/BOOTSTRAP_PYTHON_BIN=/r .up-python3' bootstrap_python3
 mkdir -p python-bin
 ln -sf $pydir/python3 python-bin/
 fi;fi
-export PATH="$pydir:$PATH:$HOME/depot_tools:$HOME/ninga"
+export PATH="$pydir:$PATH:$HOME/depot_tools:$HOME/ninja"
 for pyhome in $(find /usr/local/ -name python3.*) ;do
 [ -d "$pyhome" ]&&  export PYTHONHOME="$pyhome:$PYTHONHOME"
 done
