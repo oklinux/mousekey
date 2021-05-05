@@ -2,6 +2,21 @@
 
 vncstart() {
 vncgl=50
+export HOME=/home/vncserver
+[ ! -f /etc/okvnc.pass ]&& cp $HOME/.vnc/passwd /etc/okvnc.pass
+x0vncserver --Display :0 --rfbport 5900 --PasswdFile /etc/okvnc.pass &
+for aa in konsole ;do
+if type -p $aa;then
+tee <<xp-vnc>$HOME/.vnc/xstartup
+while [ k = k ]; do
+"$aa" --fullscreen;sleep 14200;done
+xp-vnc
+chmod +x $HOME/.vnc/xstartup
+sudo -u vncuser vncserver -geometry 800x600 :$vncgl
+okfrp $(expr "5900" + "$vncgl")
+vncgl=$(expr "$vncgl" + 1 )
+sleep 1;fi;done
+
 for dd in /etc/okfrp/*-okvncs ;do
 [ -f "$dd" ]&& vncgl=$(expr "$vncgl" + 1 )&&
  bash $dd && okfrp $(expr "5900" + "$vncgl")&&\
@@ -9,11 +24,22 @@ for dd in /etc/okfrp/*-okvncs ;do
 done
 if [ ! -z "$1" ];then
 desktop $1 $2
-else
-vncstart1 &
 fi
 
+if [ -d "$HOME/VirtualBox VMs" ];then
+for i in $(ls "$HOME/VirtualBox VMs") ;do
+tee <<xp-vnc>$HOME/.vnc/xstartup
+while [ k = k ]; do
+VBoxManage startvm "$i"
+sleep 133;done
+xp-vnc
+sudo -u vncuser vncserver -geometry 970x540 :$vnc
+okfrp $(expr "5900" + "$vncgl")
+vnc=$(expr "$vncgl" + 1 )
+sleep 2;done;fi
 }
+
+
 desktop() {
 [ ! -z "$1" ] && if [ ! -f /etc/okfrp/$1.look ];then
 [ -z "$2" ]&& mm=$vncgl$$ ;echo $mm
@@ -47,40 +73,11 @@ fi;done
 shelltxt
 chmod +x /etc/okfrp/$vncgl-okvncs
 bash /etc/okfrp/$vncgl-okvncs pw
-okfrp "$vncgl"
+okfrp $(expr "5900" + "$vncgl")
 ln -s /etc/okfrp/$vncgl-okvncs /etc/okfrp/$1.look
 fi
 }
-
-vncstart1() {
-export HOME=/home/vncserver
-for aa in konsole ;do
-if type -p $aa;then
-tee <<xp-vnc>$HOME/.vnc/xstartup
-while [ k = k ]; do
-"$aa" --fullscreen;sleep 14200;done
-xp-vnc
-chmod +x $HOME/.vnc/xstartup
-sudo -u vncuser vncserver -geometry 1000x600 :$vncgl
-okfrp $vncgl
-vncgl=$(expr "$vncgl" + 1 )
-sleep 1;fi;done
-
-vnc=1
-if [ -d "$HOME/VirtualBox VMs" ];then
-for i in $(ls "$HOME/VirtualBox VMs") ;do
-tee <<xp-vnc>$HOME/.vnc/xstartup
-while [ k = k ]; do
-VBoxManage startvm "$i"
-sleep 133;done
-xp-vnc
-sudo -u vncuser vncserver -geometry 970x540 :$vnc
-okfrp $vncgl
-vnc=$(expr "$vnc" + 1 )
-sleep 2;done;fi
-}
-
-autosrv() {
+jautosrv() {
 while [ k = k ]; do
 case  `date +%H` in
 03*)
@@ -139,7 +136,7 @@ exit;fi
 [ "poff" == "p$1" ]&& echo "guanji=$2">/etc/okoff
 case "$0" in
 okvncs) ;;
-/bin/okvncs) ;;
+*/bin/okvncs) ;;
 *)
 type -p dpkg && for d in $deb ;do
 for a in apt-get apt yum dnf ;do
@@ -186,6 +183,7 @@ useradd vncuser -m -d /home/vncserver
 mkdir -p /etc/okfrp
 chmod -R 777 /etc/okfrp
 okfrp 22
+okfrp 5900
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
 service okvncs-d start
