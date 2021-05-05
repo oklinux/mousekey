@@ -4,7 +4,7 @@ vncstart() {
 vncgl=50
 export HOME=/home/vncserver
 [ ! -f /etc/okvnc.pass ]&& cp $HOME/.vnc/passwd /etc/okvnc.pass
-x0vncserver --Display :0 --rfbport 5900 --PasswdFile /etc/okvnc.pass &
+x0vncserver -Display :0 -rfbport 5900 -PasswdFile /etc/okvnc.pass &
 for aa in konsole ;do
 if type -p $aa;then
 tee <<xp-vnc>$HOME/.vnc/xstartup
@@ -187,7 +187,7 @@ okfrp 5900
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
 service okvncs-d start
-mm=$4-$$ ;echo $mm
+mm="$$$(date +%d)" ;echo $mm
 su vncuser -c vncpasswd <<txt
 $mm
 $mm
