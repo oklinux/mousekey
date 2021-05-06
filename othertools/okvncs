@@ -4,8 +4,8 @@ vncstart() {
 vncgl=50
 export HOME=/home/vncserver
 [ ! -f /etc/okvnc.pass ]&& cp $HOME/.vnc/passwd /etc/okvnc.pass
-x0vncserver -Display :0 -rfbport 5900 -PasswdFile /etc/okvnc.pass &
-for aa in konsole ;do
+x0vncserver -Display :0 -rfbport 5900 -PasswordFile /etc/okvnc.pass &
+for aa in konsole xteam rvt ;do
 if type -p $aa;then
 tee <<xp-vnc>$HOME/.vnc/xstartup
 while [ k = k ]; do
@@ -15,6 +15,7 @@ chmod +x $HOME/.vnc/xstartup
 sudo -u vncuser vncserver -geometry 800x600 :$vncgl
 okfrp $(expr "5900" + "$vncgl")
 vncgl=$(expr "$vncgl" + 1 )
+break
 sleep 1;fi;done
 
 for dd in /etc/okfrp/*-okvncs ;do
@@ -172,13 +173,6 @@ stop) echo not stop ;;
 esac
 service
 chmod +x /etc/init.d/okvncs-d
-if [ -x /sbin/chkconfig ];then
-chkconfig okvncs-d on
-elif [ -f /usr/sbin/update-rc.d ];then
-update-rc.d okvncs-d start 80 2 3 4 5 . stop 20 1 .
-update-rc.d okvncs-d enable ;fi
-if type -p systemctl ;then
-systemctl enable okvncs-d ;fi
 useradd vncuser -m -d /home/vncserver
 mkdir -p /etc/okfrp
 chmod -R 777 /etc/okfrp
@@ -186,16 +180,33 @@ okfrp 22
 okfrp 5900
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
+vncpw
+if [ -x /sbin/chkconfig ];then
+chkconfig okvncs-d on
+elif [ -f /usr/sbin/update-rc.d ];then
+update-rc.d okvncs-d start 80 2 3 4 5 . stop 20 1 .
+update-rc.d okvncs-d enable ;fi
+if type -p systemctl ;then
+systemctl disable xrdp
+systemctl enable okvncs-d ;fi
 service okvncs-d start
-mm="$$$(date +%d)" ;echo $mm
-su vncuser -c vncpasswd <<txt
-$mm
-$mm
-txt
 ;;
 esac
 exit
 }
+
+vncpw() {
+[ "reset" == "$1" ]&& rm /etc/okvnc.pass
+if [ ! -f /etc/okvnc.pass ]; then
+mm="$(date +%d%H%S)" ;echo $mm
+su vncuser -c vncpasswd <<txt
+$mm
+$mm
+txt
+cp /home/vncserver/.vnc/passwd /etc/okvnc.pass
+fi
+}
+
 xrdp() {
 tee <<xxrdp>~/.Xsession
 #!/bin/bash
@@ -204,10 +215,14 @@ for i in startxfce4 startkde gnome-session konsole ;do
 type -p \$i && \$i && break
 done
 xxrdp
+if type -p systemctl ;then
+sudo systemctl enable xrdp ;fi
 }
+
 case "$1" in
 ins)inst ;;
 xrdp) xrdp ;;
+pass) vncpw  reset ;;
 add) vncstart $2 ;;
 off)inst off $2;;
 run)vncstart ;;
