@@ -146,6 +146,7 @@ for a in apt-get apt yum dnf ;do
 type -p $a && sudo $a install $d -y && break
 done;done
 
+if [ -d /usr/share/autostart ]; then
 tee <<desk>/usr/share/autostart/okvncs.desktop
 [Desktop Entry]
 Exec=x0vncserver -rfbport 5900 -PasswordFile /etc/okvnc.pass &
@@ -155,6 +156,7 @@ StartupNotify=false
 Terminal=false
 Type=Application
 desk
+fi
 
 tee <<service>/etc/init.d/okvncs-d
 #!/bin/bash
