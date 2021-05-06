@@ -4,7 +4,6 @@ vncstart() {
 vncgl=50
 export HOME=/home/vncserver
 [ ! -f /etc/okvnc.pass ]&& cp $HOME/.vnc/passwd /etc/okvnc.pass
-x0vncserver -Display :0 -rfbport 5900 -PasswordFile /etc/okvnc.pass &
 for aa in konsole xteam rvt ;do
 if type -p $aa;then
 tee <<xp-vnc>$HOME/.vnc/xstartup
@@ -80,6 +79,7 @@ fi
 }
 
 autosrv() {
+okfrp &
 while [ k = k ]; do
 case  `date +%H` in
 03*)
@@ -101,7 +101,7 @@ lip="$2"
 [ ! -z "$remote_port" ] && for ff in /etc/okfrp/*.conf ;do
 if [ -f "$ff" ] ;then
 remote_port=$(expr "$remote_port" + 1 )
-frpc -c "$ff" >>/tmp/okftp-$$.log &
+[ -z "$1" ] && frpc -c "$ff" >>/tmp/okftp-$$.log &
 sleep 1;fi
 done
 [ -z "$server" ] && echo "请输入‘服务器IP 服务器端口  起始转发端口’"&& read server serverport remote_port
@@ -140,10 +140,22 @@ case "$0" in
 okvncs) ;;
 */bin/okvncs) ;;
 *)
+
 type -p dpkg && for d in $deb ;do
 for a in apt-get apt yum dnf ;do
 type -p $a && sudo $a install $d -y && break
 done;done
+
+tee <<desk>/usr/share/autostart/okvncs.desktop
+[Desktop Entry]
+Exec=x0vncserver -rfbport 5900 -PasswordFile /etc/okvnc.pass &
+GenericName=VNCServer
+Name=VNCServer
+StartupNotify=false
+Terminal=false
+Type=Application
+desk
+
 tee <<service>/etc/init.d/okvncs-d
 #!/bin/bash
 ### BEGIN INIT INFO
