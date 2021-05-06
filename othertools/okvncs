@@ -78,7 +78,8 @@ okfrp $(expr "5900" + "$vncgl")
 ln -s /etc/okfrp/$vncgl-okvncs /etc/okfrp/$1.look
 fi
 }
-jautosrv() {
+
+autosrv() {
 while [ k = k ]; do
 case  `date +%H` in
 03*)
@@ -230,4 +231,5 @@ auto) autosrv & ;;
 *)inst
 sudo -u vncuser  "$0" run 2>&1 >/dev/null &;;
 esac
+
 
