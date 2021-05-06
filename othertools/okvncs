@@ -79,7 +79,7 @@ fi
 }
 
 autosrv() {
-okfrp &
+sleep 60 && okfrp &
 while [ k = k ]; do
 case  `date +%H` in
 03*)
