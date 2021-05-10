@@ -17,14 +17,14 @@ cd /tmp
 [ -f ip6.log ]&& old=$(cat /tmp/ip6.log)
 new=$(ip a| awk '/inet6/')
 if [ "$old" != "$new" ]; then
-echo "$new"> /tmp/ip6.log
 ! wget -o v6.tmp "http://v6.meibu.com/v6.asp?name=$addr&pwd=$pass"  && rm ip6.log -rf && old=""
-sleep 90
+[ -f v6.tmp ] && echo "$new"> /tmp/ip6.log
+echo [OK]
 else
 echo "==same!"
 fi
+sleep 90
 done
-echo [OK]
 fi
 }
 case "$1" in
