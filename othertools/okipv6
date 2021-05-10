@@ -15,11 +15,11 @@ if [ -f /etc/noip.cnf ];then
 while [ k = k ]; do
 cd /tmp
 [ -f ip6.log ]&& old=$(cat /tmp/ip6.log)
-sleep 90
 new=$(ip a| awk '/inet6/')
 if [ "$old" != "$new" ]; then
 echo "$new"> /tmp/ip6.log
-wget -o v6.tmp "http://v6.meibu.com/v6.asp?name=$addr&pwd=$pass"
+! wget -o v6.tmp "http://v6.meibu.com/v6.asp?name=$addr&pwd=$pass"  && rm ip6.log -rf && old=""
+sleep 90
 else
 echo "==same!"
 fi
@@ -34,6 +34,7 @@ stop) echo not stop ;;
 setup) 
 [ $(id -u) != "0" ] && sudo bash $0 setup
 cp -rf $0 /etc/init.d/okipv6
+chmod 777 /etc/init.d/okipv6
 echo "请输入‘你的域名 密码’"&& read addr pass
 [ -z "$addr" ] && exit
 [ -z "$pass" ] && bash $0 setup
