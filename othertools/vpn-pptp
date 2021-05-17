@@ -156,6 +156,7 @@ echo "$u    pptpd   $p  $i">>/etc/ppp/chap-secrets
 
 fwq1() {
 OPTIONS=/etc/ppp/options.pptpd
+
 [ -f /etc/ppp/pptpd-options ] && OPTIONS=/etc/ppp/pptpd-options
 setip="net.ipv4.ip_forward"
 xpz "option $OPTIONS" /etc/pptpd.conf "#option"
@@ -186,7 +187,7 @@ type -p systemctl && systemctl enable pptpd
 type -p chkconfig && chkconfig pptpd on
 type -p update-rc.d &&  update-rc.d pptpd enable
 
-zj=(0)sed -n "/   pptpd.*10\.241/p" /etc/ppp/chap-secrets)
+zj=$(sed -n "/   pptpd.*10\.241/p" /etc/ppp/chap-secrets)
 if [ -z  "$zj" ];then
 sj=$(date +%H)
 YH zj1 $$78$sj 192.168.10.241
