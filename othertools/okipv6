@@ -32,12 +32,12 @@ start) Noipdns &
 ;;
 stop) echo not stop ;;
 setup) 
-[ $(id -u) != "0" ] && sudo bash $0 setup
+[ $(id -u) != "0" ] && sudo bash $0 setup &&  exit
 cp -rf $0 /etc/init.d/okipv6
 chmod 777 /etc/init.d/okipv6
 echo "请输入‘你的域名 密码’"&& read addr pass
 [ -z "$addr" ] && exit
-[ -z "$pass" ] && bash $0 setup
+[ -z "$pass" ] && bash $0 setup && exit
 tee <<conf>/etc/noip.cnf
 addr=$addr
 pass=$pass

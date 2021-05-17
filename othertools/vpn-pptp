@@ -79,7 +79,7 @@ iptables-save >/etc/network/iptables.up.rules
 iptables-restore</etc/network/iptables.up.rules
 iptables-apply 2>&1 >/dev/null &
 modprobe ip_tables
-vpn-pptp auto >/dev/null
+okvpn auto >/dev/null
 fi
 
 }
@@ -155,7 +155,7 @@ echo "$u    pptpd   $p  $i">>/etc/ppp/chap-secrets
 
 
 fwq1() {
-[ -f /etc/ppp/options.pptpd ] && OPTIONS=/etc/ppp/options.pptpd
+OPTIONS=/etc/ppp/options.pptpd
 [ -f /etc/ppp/pptpd-options ] && OPTIONS=/etc/ppp/pptpd-options
 setip="net.ipv4.ip_forward"
 xpz "option $OPTIONS" /etc/pptpd.conf "#option"
@@ -163,7 +163,22 @@ xpz "connections 15" /etc/pptpd.conf "#connections"
 xpz "localip 192.168.10.199" /etc/pptpd.conf "localip"
 xpz "remoteip 192.168.10.150-230,192.168.10.245" /etc/pptpd.conf "remoteip"
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
-sysctl -p 
+tee <<pptpdcnf>$OPIONS
+name pptpd
+refuse-pap
+refuse-chap
+refuse-mschap
+require-mschap-v2
+require-mppe-128
+proxyarp
+lock
+nobsdcomp
+novj
+novjccomp
+nologfd
+pptpdcnf
+
+sysctl -p
 for a in apt-get apt yum dnf ;do
 type -p $a && $a install pptpd && break
 done
@@ -171,12 +186,20 @@ type -p systemctl && systemctl enable pptpd
 type -p chkconfig && chkconfig pptpd on
 type -p update-rc.d &&  update-rc.d pptpd enable
 
+zj=(0)sed -n "/   pptpd.*10\.241/p" /etc/ppp/chap-secrets)
+if [ -z  "$zj" ];then
 sj=$(date +%H)
-YH zj$sj\1 $$78$sj 192.168.10.241
-YH zj$sj\2 $$78$sj 192.168.10.242
-YH zj$sj\3 $$78$sj 192.168.10.243
-YH zj$sj\4 $$78$sj 192.168.10.244
-YH zj$sj\5 $$78$sj 192.168.10.245
+YH zj1 $$78$sj 192.168.10.241
+YH zj2 $$78$sj 192.168.10.242
+YH zj3 $$78$sj 192.168.10.243
+YH zj4 $$78$sj 192.168.10.244
+YH zj5 $$78$sj 192.168.10.245
+YH zj5 $$78$sj 192.168.10.245
+YH zj6 $$78$sj 192.168.10.246
+YH zj7 $$78$sj 192.168.10.247
+YH zj8 $$78$sj 192.168.10.248
+YH zj9 $$78$sj 192.168.10.249
+fi
 }
 
 khd () {
@@ -213,7 +236,7 @@ iptables-apply 2>&1 >/dev/null &
 modprobe ip_tables
 fi
 case "\$1" in
-start) /bin/vpn-pptp auto 2>&1 >tmp/vpnook.log & ;;
+start) /bin/okvpn auto 2>&1 >tmp/vpnook.log & ;;
 stop) echo not stop ;;
 esac
 service
@@ -243,8 +266,9 @@ sudo bash "$0" "$@"
 exit;fi
 
 case "$0" in
-vpn-pptp|/bin*) ;;
-/*|./*|*/*)cp "$0" /bin/vpn-pptp && chmod +x /bin/vpn-pptp  ;;
+okvpn|*bin/okvpn) ;;
+/*|./*|*/*)cp "$0" /bin/okvpn && chmod +x /bin/okvpn
+[ -f /bin/vpn-pptp ]&&rm /bin/vpn-pptp ;;
 esac
 
 
