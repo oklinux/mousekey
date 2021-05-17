@@ -156,7 +156,6 @@ echo "$u    pptpd   $p  $i">>/etc/ppp/chap-secrets
 
 fwq1() {
 OPTIONS=/etc/ppp/options.pptpd
-
 [ -f /etc/ppp/pptpd-options ] && OPTIONS=/etc/ppp/pptpd-options
 setip="net.ipv4.ip_forward"
 xpz "option $OPTIONS" /etc/pptpd.conf "#option"
@@ -164,7 +163,7 @@ xpz "connections 15" /etc/pptpd.conf "#connections"
 xpz "localip 192.168.10.199" /etc/pptpd.conf "localip"
 xpz "remoteip 192.168.10.150-230,192.168.10.245" /etc/pptpd.conf "remoteip"
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
-tee <<pptpdcnf>$OPIONS
+tee <<pptpdcnf>"$OTIONS"
 name pptpd
 refuse-pap
 refuse-chap
