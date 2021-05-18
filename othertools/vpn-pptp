@@ -9,8 +9,7 @@ shuru()
 [ -z "$pass" ] && shuru
 [ "$1" != auto ] && [ ! -z "$1" ] && srv=$1
 [ -z "$srv" ] && echo "server" && read srv
-[ "$srv" == d3 ] && srv=43.231.184.83
-[ "$srv" == lro ] && srv=106.2.6.60
+[ "$srv" == lro ] && srv=101.36.228.59
 [ -z "$routed" ] && echo "Default Route?(y/n)" && read routed
 [ -z "$srv" ] && exit 1
 [ ! -z "$pass" ] && sed -i "/pptpmyvpndevice/d" /etc/ppp/chap-secrets
@@ -33,6 +32,7 @@ echo "$1">>$2
 elif [ "$3" == shan ];then
 [ -f "$2" ]&&  sed -i "/$NR/d" $2
 else
+[ -f "$2" ]&& sed -i "s/#.*$3.*/$NR/" $2
 [ -f "$2" ]&& sed -i "s/$3.*/$NR/g" $2
 fi
 }
@@ -44,7 +44,7 @@ dns="
 114.114.114.114
 180.78.78.78
 8.8.8.8"
-xpz "127.0.0.5" /etc/resolv.conf shan
+xpz "127.0.0.1.5" /etc/resolv.conf shan
 for d in $dns ;do
 xpz "nameserver $d" /etc/resolv.conf
 done
@@ -158,13 +158,14 @@ fwq1() {
 OPTIONS=/etc/ppp/options.pptpd
 [ -f /etc/ppp/pptpd-options ] && OPTIONS=/etc/ppp/pptpd-options
 setip="net.ipv4.ip_forward"
-xpz "option $OPTIONS" /etc/pptpd.conf "#option"
-xpz "connections 15" /etc/pptpd.conf "#connections"
+xpz "option $OPTIONS" /etc/pptpd.conf "option"
+xpz "connections 15" /etc/pptpd.conf "connections"
 xpz "localip 192.168.10.199" /etc/pptpd.conf "localip"
-xpz "remoteip 192.168.10.150-230,192.168.10.245" /etc/pptpd.conf "remoteip"
+xpz "remoteip 192.168.10.150-230,192.168.10.250" /etc/pptpd.conf "remoteip"
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
-tee <<pptpdcnf>"$OTIONS"
+tee <<pptpdcnf>"$OPTIONS"
 name pptpd
+ms-dns 223.5.5.5
 refuse-pap
 refuse-chap
 refuse-mschap
@@ -200,6 +201,7 @@ YH zj7 $$78$sj 192.168.10.247
 YH zj8 $$78$sj 192.168.10.248
 YH zj9 $$78$sj 192.168.10.249
 fi
+systemctl restart pptpd
 }
 
 khd () {
