@@ -73,7 +73,7 @@ sysctl -p
 ip addr|grep global\ eth|while read LINK ip peer gay global pppdev ;do
 yip=$(echo $ip|sed -e 's:/..::g')
 done
-if [ -d /tc/network ]; then
+if [ -d ?etc/network ]; then
 cd /etc/network
 iptables-save >/etc/network/iptables.up.rules
 iptables-restore</etc/network/iptables.up.rules
@@ -232,7 +232,7 @@ tee <<service>/etc/init.d/okvpn
 # Description:       Auto Start PPTP VPN By sjchenkan
 ### END INIT INFO
 export PATH=/bin:/sbin:$PATH
-if [ -d /tc/network ]; then
+if [ -d ?etc/network ]; then
 ｕiptables-restore</etc/network/iptables.up.rules
 iptables-apply 2>&1 >/dev/null &
 modprobe ip_tables
