@@ -79,7 +79,7 @@ fi
 }
 
 autosrv() {
-sleep 60 && okfrp &
+sleep 60 && testfrp &
 while [ k = k ]; do
 case  `date +%H` in
 03*)
@@ -94,16 +94,10 @@ done
 
 okfrp() {
 if type -p frpc ;then
-cnf=/etc/okfrp.conf
+cnf=/etc/okfrp/okfrp.cnf
 lip="$2"
 [ -z "$lip" ]&& lip=127.0.0.1
 [ -f $cnf ] &&. $cnf
-[ ! -z "$remote_port" ] && for ff in /etc/okfrp/*.conf ;do
-if [ -f "$ff" ] ;then
-remote_port=$(expr "$remote_port" + 1 )
-[ -z "$1" ] && frpc -c "$ff" >>/tmp/okftp-$$.log &
-sleep 1;fi
-done
 [ -z "$server" ] && echo "请输入‘服务器IP 服务器端口  起始转发端口’"&& read server serverport remote_port
 [ -z "$remote_port" ]&& okfrp
 [ !  -f "$cnf" ]&& tee <<conf>$cnf
@@ -111,22 +105,41 @@ server=$server
 serverport=$serverport
 remote_port=$remote_port
 conf
-conf="/etc/okfrp/$lip-$1.conf"
-[ -z "$user" ]&& conf="/etc/okfrp/$lip-$1.conf"
-[ ! -f "$conf" ] && tee <<confg>"$conf"
+if [ ! -z "$1" ];then
+tee <<conf>/etc/okfrp/frpc.cnf
 [common]
 server_addr = $server
 server_port = $serverport
-
+conf
+[ ! -z "$remote_port" ] && for ff in /etc/okfrp/*.conf ;do
+if [ -f "$ff" ] ;then
+remote_port=$(expr "$remote_port" + 1 )
+cat "$ff" >>/etc/okfrp/frpc.cnf
+fi;done
+conf="/etc/okfrp/$lip-$1.conf"
+[ ! -f "$conf" ] && tee <<confg>"$conf"
 [frp$remote_port]
 type = tcp
 local_ip =  $lip
 local_port = $1
 remote_port = $remote_port
 confg
-frpc -c "$conf" >/tmp/okfrp-$$.log &
-
-
+fi
+frpc -c /etc/okfrp/frpc.cnf >/tmp/okfrp.log &
+fi
+}
+testfrp() {
+if type -p frpc ;then
+cnf=/etc/okfrp/okfrp.cnf
+[ -f $cnf ] &&. $cnf
+wget -o /tmp/okfrp.look "$server:$remote_port"
+if [ ! -f /tmp/okfrp.look ];then
+pkill frpc
+frpc -c /etc/okfrp/frpc.cnf >/tmp/okfrp.log &
+else
+rm /tmp/okfrp.look
+sleep 900
+fi
 fi
 }
 
