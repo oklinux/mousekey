@@ -58,11 +58,11 @@ fi
 if [ ! -f /etc/vpn-ipt.bak ]; then
 iptables-save>/etc/vpn-ipt.bak
 fi
-sziptables "-t nat -F POSTROUTING" 
+sziptables "-t nat -F POSTROUTING"
 sziptables "-F FORWARD -s 192.168.10.0/24 -j ACCEPT"
-sziptables "-t nat -A POSTROUTING -j MASQUERADE" 
+sziptables "-t nat -A POSTROUTING -j MASQUERADE"
 sziptables "-A FORWARD -s 192.168.10.0/24 -j ACCEPT"
-sziptables -I FORWARD -p tcp --syn -i ppp+ -j TCPMSS --set-mss 1356
+sziptables "-I FORWARD -p tcp --syn -i ppp+ -j TCPMSS --set-mss 1356"
 for i in 81:110 112:442 444:1720 1726:3388 3390:5900 ;do
 sziptables "-D INPUT -p tcp --dport $i -j DROP"
 sziptables "-A INPUT -p tcp --dport $i -j DROP"
@@ -89,17 +89,11 @@ fi
 sziptables() {
 cxzf=$(iptables-save|tr -d " ")
 cs=$(echo "$1"|tr -d  " ")
-xpz "iptables $1" /etc/vpnportcfg
-for p in $cs ;do
-case "$p" in
--*) ;;
-*)cxzf=$(echo "$cxzf"|grep "$p")
+cxzf=$(echo "$cxzf"|sed -n "#$cs#p")
 if [ -z "$cxzf" ];then
+xpz "iptables $1" /etc/vpnportcfg
 iptables $1
-break
-fi;;
-esac
-done
+fi
 }
 
 zf() {
@@ -165,7 +159,7 @@ xpz "connections 15" /etc/pptpd.conf "connections"
 xpz "localip 192.168.10.199" /etc/pptpd.conf "localip"
 xpz "remoteip 192.168.10.150-230,192.168.10.250" /etc/pptpd.conf "remoteip"
 sed -i "/$setip/c $setip=1" /etc/sysctl.conf
-sziptables -I FORWARD -p tcp --syn -i ppp+ -j TCPMSS --set-mss 1356
+sziptables "-I FORWARD -p tcp --syn -i ppp+ -j TCPMSS --set-mss 1356"
 tee <<pptpdcnf>"$OPTIONS"
 name pptpd
 ms-dns 223.5.5.5

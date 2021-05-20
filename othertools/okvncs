@@ -125,20 +125,20 @@ local_port = $1
 remote_port = $remote_port
 confg
 fi
-frpc -c /etc/okfrp/frpc.cnf >/tmp/okfrp.log &
+testfrp "$1"
 fi
 }
+
 testfrp() {
 if type -p frpc ;then
 cnf=/etc/okfrp/okfrp.cnf
-[ -f $cnf ] &&. $cnf
+[ -z "$1" ]&&[ -f $cnf ] &&. $cnf
 wget -o /tmp/okfrp.look "$server:$remote_port"
 if [ ! -f /tmp/okfrp.look ];then
 pkill frpc
 frpc -c /etc/okfrp/frpc.cnf >/tmp/okfrp.log &
 else
 rm /tmp/okfrp.look
-sleep 900
 fi
 fi
 }
