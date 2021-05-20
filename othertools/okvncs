@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 vncstart() {
@@ -133,12 +134,10 @@ testfrp() {
 if type -p frpc ;then
 cnf=/etc/okfrp/okfrp.cnf
 [ -z "$1" ]&&[ -f $cnf ] &&. $cnf
-wget -o /tmp/okfrp.look "$server:$remote_port"
-if [ ! -f /tmp/okfrp.look ];then
+wget -T15 -t1 -O/tmp/okfrp.look -o/tmp/okfrp.tmp "$server:$remote_port"
+if [ -z $(cat /tmp/okfrp.look) ];then
 pkill frpc
 frpc -c /etc/okfrp/frpc.cnf >/tmp/okfrp.log &
-else
-rm /tmp/okfrp.look
 fi
 fi
 }
