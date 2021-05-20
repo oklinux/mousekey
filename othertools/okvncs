@@ -79,7 +79,6 @@ fi
 }
 
 autosrv() {
-sleep 60 && testfrp &
 while [ k = k ]; do
 case  `date +%H` in
 03*)
@@ -136,8 +135,9 @@ if type -p frpc ;then
 cnf=/etc/okfrp/okfrp.cnf
 [ -z "$1" ]&&[ -f $cnf ] &&. $cnf
 wget -T15 -t1 -O/tmp/okfrp.look -o/tmp/okfrp.tmp "$server:$remote_port"
-if [ -z $(cat /tmp/okfrp.look) ];then
-pkill frpc
+xx="$(cat /tmp/okfrp.look)"
+xx="$xx$(cat /tmp/okfrp.tmp|grep HTTP)"
+if [ -z "$xx" ];then
 frpc -c /etc/okfrp/frpc.cnf >/tmp/okfrp.log &
 fi
 fi
@@ -189,6 +189,15 @@ while [ k = k ]; do
 case \`date +%H\` in
 \$guanji)poweroff ;;
 *) /bin/okvncs auto 2>&1 >/tmp/okvncs.log &
+type -p wget && if type -p frpc ;then
+sleep 55 ; cnf=/etc/okfrp/okfrp.cnf
+[ -f \$cnf ] &&. \$cnf
+wget -T15 -t1 -O/tmp/okfrp.look -o/tmp/okfrp.tmp "\$server:\$remote_port"
+xx="\$(cat /tmp/okfrp.look)"
+xx="\$xx\$(cat /tmp/okfrp.tmp|grep HTTP)"
+if [ -z "\$xx" ];then
+frpc -c /etc/okfrp/frpc.cnf >/tmp/okfrp.log &
+fi;fi
 sleep 2500 ;;
 esac
 done
@@ -201,23 +210,23 @@ stop) echo not stop ;;
 esac
 service
 chmod +x /etc/init.d/okvncs-d
-useradd vncuser -m -d /home/vncserver
-mkdir -p /etc/okfrp
-chmod -R 777 /etc/okfrp
-okfrp 22
-okfrp 5900
 sudo cp -rf "$0" /bin/okvncs
 chmod 777 /bin/okvncs
+useradd vncuser -m -d /home/vncserver
 vncpw
-if [ -x /sbin/chkconfig ];then
+if type -p systemctl ;then
+systemctl disable xrdp
+systemctl enable okvncs-d
+elif [ -x /sbin/chkconfig ];then
 chkconfig okvncs-d on
 elif [ -f /usr/sbin/update-rc.d ];then
 update-rc.d okvncs-d start 80 2 3 4 5 . stop 20 1 .
 update-rc.d okvncs-d enable ;fi
-if type -p systemctl ;then
-systemctl disable xrdp
-systemctl enable okvncs-d ;fi
 service okvncs-d start
+mkdir -p /etc/okfrp
+chmod -R 777 /etc/okfrp
+okfrp 22
+okfrp 5900
 ;;
 esac
 exit
