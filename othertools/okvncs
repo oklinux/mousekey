@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 vncstart() {
@@ -125,8 +124,10 @@ local_ip =  $lip
 local_port = $1
 remote_port = $remote_port
 confg
+cat "$conf" >>/etc/okfrp/frpc.cnf
+testfrp "$1" &
 fi
-testfrp "$1"
+testfrp &
 fi
 }
 
@@ -143,7 +144,7 @@ fi
 }
 
 inst() {
-deb="vnc4server gcc firefox wqy-h* konsole xrdp  xrdp-pulseaudio*"
+deb="vnc4server firefox konsole xrdp  xrdp-pulseaudio*"
 if [ $(id -u) != 0 ];then
 sudo bash "$0" "$@"
 exit;fi
@@ -155,7 +156,7 @@ okvncs) ;;
 
 type -p dpkg && for d in $deb ;do
 for a in apt-get apt yum dnf ;do
-type -p $a && sudo $a install $d -y && break
+type -p $a && sudo $a install $d -y >/dev/null && break
 done;done
 
 if [ -d /usr/share/autostart ]; then
