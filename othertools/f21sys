@@ -21,15 +21,18 @@ umount /home/lsf/dev
 fi
 exit
 fi
+
 #/bindata//
 #!/bin/bash
 cd
 pydir=/usr/bin
 [ -f /usr/local/bin/python3 ]&& pydir=/usr/local/bin
 [ -f /usr/local/python3/bin/python3 ]&& pydir=/usr/local/python3/bin
-export ALL_PROXY=socks5://127.0.0.1:10808
-export http_proxy=127.0.0.1:10809
-export https_proxy=127.0.0.1:10809
+
+#export ALL_PROXY=socks5://127.0.0.1:10808
+#export http_proxy=127.0.0.1:10809
+#export https_proxy=127.0.0.1:10809
+
 if [ ! -f depot_tools/.up-python3 ];then
 yum install git python3 nodejs npm -y
 git config --global http.postBuffer 232333111
@@ -50,18 +53,19 @@ done
 mkdir -p ~/nwjs-build
 
 dosync() {
+#~/depot_tools/gclient config --name=src https://chromium.googlesource.com/chromium/src
+gclient config --name=src https://github.com/nwjs/chromium.src.git@origin/nw52
 mkdir -p ~/nwjs-build/src/content/nw
 cd ~/nwjs-build/src/content/nw
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/nw.js
-gclient sync --with_branch_heads
-mkdir -p ~/nwjs-build/third_party/node-nw
-cd ~/nwjs-build/third_party/node-nw
+mkdir -p ~/nwjs-build/src/third_party/node-nw
+cd ~/nwjs-build/src/third_party/node-nw
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/node
-gclient sync --with_branch_heads
 mkdir -p ~/nwjs-build/src/v8
 cd ~/nwjs-build/src/v8
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/v8
 gclient sync --with_branch_heads
+./src/build/install-build-deps.sh
 }
 
 cd ~/nwjs-build
@@ -70,12 +74,10 @@ case "$yn" in
 s)bash;exit ;;
 3)dosync ;;
 y*|Y*)
-~/depot_tools/gclient config --name=src https://chromium.googlesource.com/chromium/src
-gclient sync --with_branch_heads
 dosync ;;
 esac
 
-cd ~/nwjs-build
+cd ~/nwjs-build/src
 export GN_CONFIGS="{
 is_debug=false
 is_clang=false
@@ -90,11 +92,42 @@ treat_warnings_as_errors=false
 nwjs_sdk=false
 }"
  gn gen out/nw --args="${GN_CONFIG[*]}"
- 
- ninja-build -C out/nw nwjs
- export GYP_DEFINES="target_arch=mips64el debug=false clang=false sysroot=false host_arch=mips64el"
- GYP_CHROMIUM_NO_ACTION=0 ./src/build/gyp_chromium -I third_party/node-nw/common.gypi -D building_nw=1 third_party/node-nw/node.gyp
 
- ninja-build -C out/Release node
+ ninja -C out/nw nwjs
+ export GYP_DEFINES="target_arch=mips64el debug=false clang=false sysroot=false host_arch=mips64el"
+ GYP_CHROMIUM_NO_ACTION=0 ./build/gyp_chromium -I third_party/node-nw/common.gypi -D building_nw=1 third_party/node-nw/node.gyp
+
+ ninja -C out/Release node
  ninja -C out/nw copy_node
  
+exit
+
+
+
+
+
+mkdir -p $HOME/nwjs
+ cd $HOME/nwj
+
+"custom_deps" : {
+  "src/third_party/WebKit/LayoutTests": None,
+   "src/chrome_frame/tools/test/reference_build/chrome": None,
+  "src/chrome_frame/tools/test/reference_build/chrome_win": None,
+  "src/chrome/tools/test/reference_build/chrome": None,
+  "src/chrome/tools/test/reference_build/chrome_linux": None,
+  "src/chrome/tools/test/reference_build/chrome_mac": None,
+  "src/chrome/tools/test/reference_build/chrome_win": None,
+ }
+is_debug=false
+ is_component_ffmpeg=true
+target_cpu="x64"
+cd src
+GYP_CHROMIUM_NO_ACTION=0
+./build/gyp_chromium -I \ third_party/node-nw/common.gypi -D building_nw=1 -D clang=1 third_party/node-nw/node.gyp
+./build/gyp_chromium -D component=shared_library -I third_party/node-nw/common.gypi -D building_nw=1 -D clang=1 third_party/node-nw/node.gyp
+cd src
+ ninja -C out/nw nwjs
+cd src ninja -C out/Release node
+cd src ninja -C out/nw copy_node
+‘nwjs_sdk=false 
+enable_nacl=true
