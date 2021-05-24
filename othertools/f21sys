@@ -26,15 +26,15 @@ fi
 #!/bin/bash
 cd
 pydir=/usr/bin
-[ -f /usr/local/bin/python3 ]&& pydir=/usr/local/bin
-[ -f /usr/local/python3/bin/python3 ]&& pydir=/usr/local/python3/bin
+#[ -f /usr/local/bin/python3 ]&& pydir=/usr/local/bin
+#[ -f /usr/local/python3/bin/python3 ]&& pydir=/usr/local/python3/bin
 
-#export ALL_PROXY=socks5://127.0.0.1:10808
-#export http_proxy=127.0.0.1:10809
-#export https_proxy=127.0.0.1:10809
+export ALL_PROXY=socks5://127.0.0.1:10808
+export http_proxy=127.0.0.1:10809
+export https_proxy=127.0.0.1:10809
 
 if [ ! -f depot_tools/.up-python3 ];then
-yum install git python3 nodejs npm -y
+yum install git python3 nodejs npm re2c -y
 git config --global http.postBuffer 232333111
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 if [ -d depot_tools ];then
@@ -46,10 +46,14 @@ sed -i  '/BOOTSTRAP_PYTHON_BIN=/r .up-python3' bootstrap_python3
 mkdir -p python-bin
 ln -sf $pydir/python3 python-bin/
 fi;fi
+if [ ! -d "$HOME/ninja" ]; then
+git clone https://github.com/ninja-build/ninja.git -b v1.8.2
+cd ninja && ./configure.py --bootstrap ;fi
+
 export PATH="$pydir:$PATH:$HOME/depot_tools:$HOME/ninja"
-for pyhome in $(find /usr/local/ -name python3.*) ;do
-[ -d "$pyhome" ]&&  export PYTHONHOME="$pyhome:$PYTHONHOME"
-done
+#for pyhome in $(find /usr/local/ -name python3.*) ;do
+#[ -d "$pyhome" ]&&  export PYTHONHOME="$pyhome:$PYTHONHOME"
+#done
 mkdir -p ~/nwjs-build
 
 dosync() {
@@ -68,15 +72,7 @@ gclient sync --with_branch_heads
 ./src/build/install-build-deps.sh
 }
 
-cd ~/nwjs-build
-echo "是否同步(y/n)？";read yn
-case "$yn" in
-s)bash;exit ;;
-3)dosync ;;
-y*|Y*)
-dosync ;;
-esac
-
+buildnwjs() {
 cd ~/nwjs-build/src
 export GN_CONFIGS="{
 is_debug=false
@@ -96,10 +92,20 @@ nwjs_sdk=false
  ninja -C out/nw nwjs
  export GYP_DEFINES="target_arch=mips64el debug=false clang=false sysroot=false host_arch=mips64el"
  GYP_CHROMIUM_NO_ACTION=0 ./build/gyp_chromium -I third_party/node-nw/common.gypi -D building_nw=1 third_party/node-nw/node.gyp
-
  ninja -C out/Release node
  ninja -C out/nw copy_node
- 
+}
+
+
+cd ~/nwjs-build
+echo "是否同步(y/n)？";read yn
+case "$yn" in
+s)bash;exit ;;
+y*|Y*)dosync 
+buildnwjs;;
+*)buildnwjs ;;
+esac
+
 exit
 
 
