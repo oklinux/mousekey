@@ -51,9 +51,9 @@ esac
 
 pydir=/usr/bin
 
-#3export ALL_PROXY=socks5://127.0.0.1:10808
-#export http_proxy=127.0.0.1:10809
-#export https_proxy=127.0.0.1:10809
+export ALL_PROXY=socks5://127.0.0.1:10808
+export http_proxy=127.0.0.1:10809
+export https_proxy=127.0.0.1:10809
 
 if [ ! -f depot_tools/.up-python3 ];then
 yum install git nodejs npm re2c -y
