@@ -23,7 +23,7 @@ exit
 fi
 
 #/bindata//
-#!/bin/bash
+#!/bin/bash -e
 
 dns="8.8.8.8
 8.8.4.4
