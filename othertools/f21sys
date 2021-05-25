@@ -44,21 +44,19 @@ xz -d py.tar.xz
 tar xvf py.tar
 cd  Python-3.8.0
 ./configure --prefix=/usr
-make && rpm -e python3
+make && yum remove python3
 make install
 cd ;;
 esac
 
 pydir=/usr/bin
-#[ -f /usr/local/bin/python3 ]&& pydir=/usr/local/bin
-#[ -f /usr/local/python3/bin/python3 ]&& pydir=/usr/local/python3/bin
 
 #3export ALL_PROXY=socks5://127.0.0.1:10808
 #export http_proxy=127.0.0.1:10809
 #export https_proxy=127.0.0.1:10809
 
 if [ ! -f depot_tools/.up-python3 ];then
-yum install git python3 nodejs npm re2c -y
+yum install git nodejs npm re2c -y
 git config --global http.postBuffer 232333111
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 if [ -d depot_tools ];then
@@ -66,7 +64,7 @@ cd depot_tools
 tee <<str>.up-python3
 [ ! -f \$BOOTSTRAP_PYTHON_BIN ]&&mkdir -p \$(dirname "\$BOOTSTRAP_PYTHON_BIN") &&ln -sf $pydir/python3 \$BOOTSTRAP_PYTHON_BIN
 str
-sed -i  "/$pydir/python3/d" bootstrap_python3
+sed -i  "#$pydir#d" bootstrap_python3
 sed -i  '/BOOTSTRAP_PYTHON_BIN=/r .up-python3' bootstrap_python3
 mkdir -p python-bin
 ln -sf $pydir/python3 python-bin/
@@ -75,7 +73,7 @@ if [ ! -d "$HOME/ninja" ]; then
 git clone https://github.com/ninja-build/ninja.git -b v1.8.2
 cd ninja && ./configure.py --bootstrap ;fi
 
-export PATH="$pydir:$PATH:$HOME/depot_tools:$HOME/ninja"
+export PATH="$HOME/ninja:$HOME/depot_tools:$PATH"
 #for pyhome in $(find /usr/local/ -name python3.*) ;do
 #[ -d "$pyhome" ]&&  export PYTHONHOME="$pyhome:$PYTHONHOME"
 #done
