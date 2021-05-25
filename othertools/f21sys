@@ -2,7 +2,7 @@
 
 
 if [ -f /home/lsf/bin/cd ];then
-if [ ! -d /home/lsf/sysdev ];then
+if [ ! -d /home/lsf/sys/dev ];then
 mount -o bind /proc /home/lsf/proc
 mount -o bind /srv /home/lsf/srv
 mount -o bind /sys /home/lsf/sys
@@ -24,14 +24,38 @@ fi
 
 #/bindata//
 #!/bin/bash
+
+dns="8.8.8.8
+8.8.4.4
+223.5.5.5
+223.6.6.6
+114.114.114.114
+180.78.78.78"
+echo >/etc/resolv.conf
+for d in $dns ;do
+echo "nameserver $d" >>/etc/resolv.conf
+done
+
 cd
+case $(python3 --version) in
+*3.8.*) ;;
+*) wget -O py.tar.xz https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tar.xz
+xz -d py.tar.xz
+tar xvf py.tar
+cd  Python-3.8.0
+./configure --prefix=/usr
+make && rpm -e python3
+make install
+cd ;;
+esac
+
 pydir=/usr/bin
 #[ -f /usr/local/bin/python3 ]&& pydir=/usr/local/bin
 #[ -f /usr/local/python3/bin/python3 ]&& pydir=/usr/local/python3/bin
 
-export ALL_PROXY=socks5://127.0.0.1:10808
-export http_proxy=127.0.0.1:10809
-export https_proxy=127.0.0.1:10809
+#3export ALL_PROXY=socks5://127.0.0.1:10808
+#export http_proxy=127.0.0.1:10809
+#export https_proxy=127.0.0.1:10809
 
 if [ ! -f depot_tools/.up-python3 ];then
 yum install git python3 nodejs npm re2c -y
@@ -42,6 +66,7 @@ cd depot_tools
 tee <<str>.up-python3
 [ ! -f \$BOOTSTRAP_PYTHON_BIN ]&&mkdir -p \$(dirname "\$BOOTSTRAP_PYTHON_BIN") &&ln -sf $pydir/python3 \$BOOTSTRAP_PYTHON_BIN
 str
+sed -i  "/$pydir/python3/d" bootstrap_python3
 sed -i  '/BOOTSTRAP_PYTHON_BIN=/r .up-python3' bootstrap_python3
 mkdir -p python-bin
 ln -sf $pydir/python3 python-bin/
@@ -68,6 +93,7 @@ cd ~/nwjs-build/src/third_party/node-nw
 mkdir -p ~/nwjs-build/src/v8
 cd ~/nwjs-build/src/v8
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/v8
+cd ~/nwjs-build/
 gclient sync --with_branch_heads
 ./src/build/install-build-deps.sh
 }
