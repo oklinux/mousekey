@@ -3,20 +3,20 @@
 
 if [ -f /home/lsf/bin/cd ];then
 if [ ! -d /home/lsf/sys/dev ];then
-mount -o bind /proc /home/lsf/proc
-mount -o bind /srv /home/lsf/srv
-mount -o bind /sys /home/lsf/sys
-mount -o bind /run /home/lsf/run
-mount -o bind /dev /home/lsf/dev
+mount --rbind /proc /home/lsf/proc
+mount --rbind /srv /home/lsf/srv
+mount --rbind /sys /home/lsf/sys
+mount --rbind /run /home/lsf/run
+mount --rbind /dev /home/lsf/dev
 fi
 sed -e '1,/bindata\//d' /bin/f21sys>/home/lsf/boot.sh
 chmod 777 /home/lsf/boot.sh
 chroot /home/lsf /boot.sh
 if [ -d /home/lsf/dev/shm ];then
-umount /home/lsf/proc
-umount /home/lsf/sys
-umount /home/lsf/srv
-umount /home/lsf/run
+umount /home/lsf/proc &&\
+umount /home/lsf/sys &&\
+umount /home/lsf/srv &&\
+umount /home/lsf/run &&\
 umount /home/lsf/dev
 fi
 exit
@@ -80,8 +80,11 @@ cd;if [ ! -d "$HOME/llvm-project" ]; then
 git clone https://github.com/llvm/llvm-project ;fi
 cd llvm-project && if [ ! -f .build-done ]; then
 mkdir -p build
-cmake -S llvm -b build  -G Ninja 
-#DCMAKE_INSTALL_PREFIX=/usr
+cmake -S llvm -B build  -G Ninja \
+-DCMAKE_INSTALL_PREFIX=/usr \
+-DLLVM_ENABLE_PROJECTS="clang,libcxx,libcxxabi"
+yum remove clang && echo
+cmake --uuild build
 echo >.build-done
 fi
 
