@@ -51,6 +51,8 @@ esac
 
 pydir=/usr/bin
 
+
+
 export ALL_PROXY=socks5://127.0.0.1:10808
 export http_proxy=127.0.0.1:10809
 export https_proxy=127.0.0.1:10809
@@ -70,6 +72,15 @@ mkdir -p python-bin
 ln -sf $pydir/python3 python-bin/
 fi;fi
 
+cd;if [ ! -d "$HOME/cmake" ]; then
+git clone https://github.com/Kitware/cmake.git ;fi
+if [ ! -f cmake/.build-done ]; then
+cd cmake
+./configure --prefix=/usr
+gmake && yum remove cmake
+make install && echo >.build-done
+fi
+
 cd;if [ ! -d "$HOME/ninja" ]; then
 git clone https://github.com/ninja-build/ninja.git -b v1.8.2 ;fi
 cd ninja && if [ ! -f .build-done ]; then
@@ -77,14 +88,13 @@ cd ninja && if [ ! -f .build-done ]; then
 fi
 
 cd;if [ ! -d "$HOME/llvm-project" ]; then
-git clone https://github.com/llvm/llvm-project ;fi
+ git clone https://github.com/llvm/llvm-project ;fi
 cd llvm-project && if [ ! -f .build-done ]; then
-mkdir -p build
-cmake -S llvm -B build  -G Ninja \
+cmake -S llvm  -G Ninja \
 -DCMAKE_INSTALL_PREFIX=/usr \
 -DLLVM_ENABLE_PROJECTS="clang,libcxx,libcxxabi"
 yum remove clang && echo
-cmake --uuild build
+cmake --build build
 echo >.build-done
 fi
 
