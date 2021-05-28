@@ -74,11 +74,15 @@ fi;fi
 
 cd;if [ ! -d "$HOME/cmake" ]; then
 git clone https://github.com/Kitware/cmake.git ;fi
+
+
 if [ ! -f cmake/.build-done ]; then
+yum remove -y cmake && echo
 cd cmake
-./configure --prefix=/usr
-gmake && yum remove cmake
-make install && echo >.build-done
+export CXX_FLAGS="-std=gun++98"
+./configure --prefix=/usr --no-system-libs
+##cmake . -DBUILD_TESTING=OFF
+gmake &&make install && echo >.build-done
 fi
 
 cd;if [ ! -d "$HOME/ninja" ]; then
@@ -90,10 +94,10 @@ fi
 cd;if [ ! -d "$HOME/llvm-project" ]; then
  git clone https://github.com/llvm/llvm-project ;fi
 cd llvm-project && if [ ! -f .build-done ]; then
+yum remove -y clang && echo
 cmake -S llvm  -G Ninja \
 -DCMAKE_INSTALL_PREFIX=/usr \
 -DLLVM_ENABLE_PROJECTS="clang,libcxx,libcxxabi"
-yum remove clang && echo
 cmake --build build
 echo >.build-done
 fi
@@ -103,7 +107,8 @@ export PATH="$HOME/ninja:$HOME/depot_tools:$PATH"
 cd;if [ ! -d "$HOME/gn" ]; then
 git clone https://gn.googlesource.com/gn ;fi
 cd gn && if [ ! -f .build-done ]; then
- python build/gen.py
+python build/gen.py
+export CXX_FLAGS="-std=c++11"
 ninja -C out/ && echo >.build-done
 fi
 
