@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 
@@ -36,6 +37,19 @@ for d in $dns ;do
 echo "nameserver $d" >>/etc/resolv.conf
 done
 
+cd;if [ ! -f "$HOME/gcc-8.1.0.tar.gz" ]; then
+wget http://ftp.gnu.org/gnu/gcc/gcc-8.1.0/gcc-8.1.0.tar.gz;fi
+if [ ! -f gcc-8.1.0/.build-done ]; then
+tar -xzvf gcc-8.1.0.tar.gz
+cd gcc-8.1.0
+./contrib/download_prerequisites
+./configure  --prefix=/usr --enable-checking=release --enable-languages=c,c++ --disable-multilib --with-abi=64
+make -j4
+yum remove -y gcc gcc-*
+yum remove -y g++ g++-*
+make install && echo >../.build-done
+fi
+
 cd
 case $(python3 --version) in
 *3.8.*) ;;
@@ -51,8 +65,7 @@ esac
 
 pydir=/usr/bin
 
-
-
+export PATH="$HOME/ninja:$HOME/depot_tools:$PATH"
 export ALL_PROXY=socks5://127.0.0.1:10808
 export http_proxy=127.0.0.1:10809
 export https_proxy=127.0.0.1:10809
@@ -101,8 +114,6 @@ cmake -S llvm  -G Ninja \
 cmake --build build
 echo >.build-done
 fi
-
-export PATH="$HOME/ninja:$HOME/depot_tools:$PATH"
 
 cd;if [ ! -d "$HOME/gn" ]; then
 git clone https://gn.googlesource.com/gn ;fi
