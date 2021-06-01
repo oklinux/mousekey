@@ -109,24 +109,30 @@ cd ninja && if [ ! -f .build-done ]; then
 ./configure.py --bootstrap && echo >.build-done
 fi
 
+if [ -d hh ]; then
 cd;if [ ! -d "$HOME/llvm-project" ]; then
  git clone https://github.com/llvm/llvm-project ;fi
-cd llvm-project && if [ ! -f .build-done ]; then
+mkdir -p llvm-project/buildclang
+cd llvm-project/
+if [ ! -f .build-done ]; then
 yum remove -y clang && echo
-cmake -S llvm  -G Ninja \
+yum install -y libxml2-dev && echo
+cmake -S clang -G "Unix Makefiles" . \
 -DCMAKE_INSTALL_PREFIX=/usr \
--DLLVM_ENABLE_PROJECTS="clang,libcxx,libcxxabi"
-echo 开始构建LLVM....
-cmake --build .
+-DCMAKE_BUILD_TYPE=Debug 
+echo 开始构建LLVM...
+make -j1
+make install
 echo >.build-done
+fi
 fi
 
 cd;if [ ! -d "$HOME/gn" ]; then
 git clone https://gn.googlesource.com/gn ;fi
 cd gn && if [ ! -f .build-done ]; then
+ln -sf /usr/bin/g++ clang++
 python build/gen.py
-export CXX_FLAGS="-std=c++11"
-ninja -C out/ && echo >.build-done
+PATH="./:$PATH" ninja -C out/ && echo >.build-done
 fi
 
 mkdir -p ~/nwjs-build
@@ -150,6 +156,7 @@ gclient sync --with_branch_heads
 
 buildnwjs() {
 cd ~/nwjs-build/src
+cp "$HOME/gn/out/gn" buildtools/linux64/
 export GN_CONFIGS="{
 is_debug=false
 is_clang=false
