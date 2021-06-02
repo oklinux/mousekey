@@ -432,6 +432,7 @@ ccc="$(dirname $cc)/$appid.$name.desktop"
 sed -i '/StartupNotify/d' "$ccc"
 for ee in GNOME GTK QT Gnome ;do
 sed -i "s/$ee;//g" "$ccc" ;done
+chmod +x "$ccc"
 sed -i "s:Exec.*$eame.:Exec=/$data/files/run-$ename %U:g" $ccc
 icon=$(basename $(cat "$ccc"|grep Icon|sed -e 's/Icon=//g'))
 dicon="$data/entries/icons/hicolor";mkdir -p "$dicon"
@@ -574,6 +575,66 @@ rm rebuild-$$ -rf
 fi;fi
 exit
 }
+
+pkginfo() {
+info=$(sed -n "/\"$1\"/p" package.json|sed -e "s/.*$1.*:/")
+if [ -z "$ibfo" ];then
+echo "请输入$1的内容："
+read info
+[ -z "$info" ]&& pkginfo "$1"
+sed -i "/\"name\"/a 		\"$1\": \"$info\"," package.json
+fi
+echo $info|tr \",
+}
+
+buildcfg() {
+name=$(pkgibfo name)
+ver=$(pkgibfo version)
+author=$(pkgibfo author)
+desc=$(pkgibfo description)
+lice=$(pkgibfo license)
+}
+
+dtname() {
+if [ ! -f "appsconfig/$name.deskktop" ]; then
+echo 请输入你的应用的名称，如“酷猫应用商店”
+read mc && [ -z "$mc" ] && echo "不能为空，请重新输入。" &&dtname
+}
+
+mkdesk() {
+dtname
+echo "请选择你的应用软件出现在开始菜单的哪个子项中？
+1，办公  2，工具  3，互联网、网络  4，多媒体、影音
+可以键入相应的数字进行选择：‘"
+read ty
+case "$ty" in
+1) type=Office ;;
+2) type=Utility ;;
+3) type=Netwrok ;;
+4) type="Player;Video;Audio" ;;
+5) type=Develop ;;
+6) type=Game ;;
+esac
+
+mkdir -p appsconfig
+tee <<desk>appsconfig/$name.desktop
+[Desktop Entry]
+Name=$mc
+Comment=
+GenericName=$mc
+Exec="/usr/bin/$name"
+Icon=TraderMaster
+StartupNotify=true
+Terminal=false
+Type=Application
+X-GNOME-Autostart-Delay=10
+Categories=GNOME;$type;
+}
+
+buildnw() {
+if [ -f package.json ];then
+buildcfg
+
 
 startinst() {
 if [ -d /etc/nginx/vhost ];then
