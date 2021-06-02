@@ -109,7 +109,6 @@ cd ninja && if [ ! -f .build-done ]; then
 ./configure.py --bootstrap && echo >.build-done
 fi
 
-if [ -d hh ]; then
 cd;if [ ! -d "$HOME/llvm-project" ]; then
  git clone https://github.com/llvm/llvm-project ;fi
 mkdir -p llvm-project/buildclang
@@ -117,14 +116,14 @@ cd llvm-project/
 if [ ! -f .build-done ]; then
 yum remove -y clang && echo
 yum install -y libxml2-dev && echo
-cmake -S clang -G "Unix Makefiles" . \
+cmake -S llvm -G "Unix Makefiles" \
 -DCMAKE_INSTALL_PREFIX=/usr \
--DCMAKE_BUILD_TYPE=Debug 
+-DCMAKE_BUILD_TYPE=Debug \
+-DLLVM_ENABLE_PROJECTS="clabg"
 echo 开始构建LLVM...
 make -j1
 make install
 echo >.build-done
-fi
 fi
 
 cd;if [ ! -d "$HOME/gn" ]; then
