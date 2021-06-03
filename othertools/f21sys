@@ -111,15 +111,16 @@ fi
 
 cd;if [ ! -d "$HOME/llvm-project" ]; then
  git clone https://github.com/llvm/llvm-project ;fi
-mkdir -p llvm-project/buildclang
+
 cd llvm-project/
 if [ ! -f .build-done ]; then
 yum remove -y clang && echo
 yum install -y libxml2-dev && echo
+export CFLAGS="-mxgot"
 cmake -S llvm -G "Unix Makefiles" \
 -DCMAKE_INSTALL_PREFIX=/usr \
 -DCMAKE_BUILD_TYPE=Debug \
--DLLVM_ENABLE_PROJECTS="clabg"
+-DLLVM_ENABLE_PROJECTS="clang"
 echo 开始构建LLVM...
 make -j1
 make install
