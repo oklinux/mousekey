@@ -116,19 +116,22 @@ cd llvm-project/
 if [ ! -f .build-done ]; then
 yum remove -y clang && echo
 yum install -y libxml2-dev && echo
+
+sed -i '/CMAKE_C_FLAGS. -mxgot /d' llvm/CMakeLists.txt
 cmake -S llvm -G "Unix Makefiles" \
 -DCMAKE_INSTALL_PREFIX=/usr \
--DCMAKE_BUILD_TYPE=Debug \
--DLLVM_ENABLE_PROJECTS="clang"
+-DLLVM_ENABLE_PROJECTS="clang" \
+-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+-DCMAKE_C_FLAGS_RELWITHDEBINFO='-O3 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches -mabi=64 -march=loongson3a -fno-delete-null-pointer-checks -Wa,' \
+-DCMAKE_CXX_FLAGS_RELWITHDEBINFO='-O3 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches  -mabi=64 -march=loongson3a -fno-delete-null-pointer-checks -Wa,'
+
 echo 开始构建LLVM...
-tee <<cmaketxt>>CMakeCache.txt
-set(CMAKE_C_FLAGS "$(CMAKE_C_FLAGS) -mxgot ")
-cmaketxt
-make -j4
+
+make 
 make install
 echo >.build-done
 fi
-
+`
 cd;if [ ! -d "$HOME/gn" ]; then
 git clone https://gn.googlesource.com/gn ;fi
 cd gn && if [ ! -f .build-done ]; then
