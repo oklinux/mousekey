@@ -10,31 +10,33 @@
 ### END INIT INFO
 export PATH=/bin:/sbin:$PATH
 Noipdns() {
-if [ -f /etc/noip.cnf ];then
-. /etc/noip.cnf
 while [ k = k ]; do
 cd /tmp
 [ -f ip6.log ]&& old=$(cat /tmp/ip6.log)
-new=$(ip a| awk '/inet6/')
+new=$(ip -6 a| awk '/glabel/')
+echo "$new"|while read ipa ip6 ipb ipc;do
+type -p route>/dev/null && route -6 add "$ip6"
+done
+if [ -f /etc/noip.cnf ];then
+. /etc/noip.cnf
 if [ "$old" != "$new" ]; then
 ! wget -Ov6.log -ov6.tmp "http://v6.meibu.com/v6.asp?name=$addr&pwd=$pass"  && rm ip6.log -rf && old=""
 [ -f ip6.log ] && echo "$new"> /tmp/ip6.log
 echo [OK]
 else
 echo "==same!"
-fi
+fi;fi
 sleep 90
 done
-fi
 }
 case "$1" in
-start) Noipdns &
-;;
-stop) echo not stop ;;
-setup) 
-[ $(id -u) != "0" ] && sudo bash $0 setup &&  exit
+start) Noipdns & ;;
+restart|status|reload|stop) echo not stop ;;
+*) [ $(id -u) != "0" ] && sudo bash $0 setup &&  exit
 cp -rf $0 /etc/init.d/okipv6
 chmod 777 /etc/init.d/okipv6
+systemctl enable okipv6 >/dev/null
+systemctl start okipv6
 echo "请输入‘你的域名 密码’"&& read addr pass
 [ -z "$addr" ] && exit
 [ -z "$pass" ] && bash $0 setup && exit
@@ -42,5 +44,5 @@ tee <<conf>/etc/noip.cnf
 addr=$addr
 pass=$pass
 conf
-systemctl enable okipv6 ;;
+;;
 esac
