@@ -223,10 +223,8 @@ esac
 if [ ! -f "$3-$2/Release.gpg" ];then
 # gpg -abs --default-key $gpgkey -o $3-$2/Release.gpg $3-$2/Release
 # gpg --clearsign --default-key $gpgkey -o $3-$2/InRelease $3-$2/Release
-gpg -abs  -o $3-$2/Release.gpg $3-$2/Release
-gpg --clearsign -o $3-$2/InRelease $3-$2/Release
 tar czf info.tgz info/ icons/
-yuan="deb http://$BJFWQ/$1 $3-$2/
+yuan="deb [trusted=yes] http://$BJFWQ/$1 $3-$2/
 # deb-src http://$BJFWQ/$1 $3-$2/
 $yuan"
 echo 列表生成完毕！
@@ -589,23 +587,25 @@ echo $info|tr \",
 
 buildcfg() {
 name=$(pkgibfo name)
-ver=$(pkgibfo version)
+appver=$(pkgibfo version)
 author=$(pkgibfo author)
 desc=$(pkgibfo description)
 lice=$(pkgibfo license)
 }
 
 dtname() {
-if [ ! -f "appsconfig/$name.deskktop" ]; then
 echo 请输入你的应用的名称，如“酷猫应用商店”
 read mc && [ -z "$mc" ] && echo "不能为空，请重新输入。" &&dtname
+echo 请把你的应用图标放到$(pwd)/icons目录下。。。
 }
 
+
 mkdesk() {
+if [ ! -f "$name.desktop" ]; then
 dtname
 echo "请选择你的应用软件出现在开始菜单的哪个子项中？
 1，办公  2，工具  3，互联网、网络  4，多媒体、影音
-可以键入相应的数字进行选择：‘"
+可以键入相应的数字进行选择："
 read ty
 case "$ty" in
 1) type=Office ;;
@@ -615,11 +615,12 @@ case "$ty" in
 5) type=Develop ;;
 6) type=Game ;;
 esac
-
-mkdir -p appsconfig
-tee <<desk>appsconfig/$name.desktop
+for icon in icons/* icon* ;do
+if [ -f "$icon" ]; then
+tee <<desk>$name.desktop
 [Desktop Entry]
 Name=$mc
+Icon=/opt/$name/$icon
 Comment=
 GenericName=$mc
 Exec="/usr/bin/$name"
@@ -629,12 +630,142 @@ Terminal=false
 Type=Application
 X-GNOME-Autostart-Delay=10
 Categories=GNOME;$type;
+desk
+break;fi;done;fi
 }
 
+down_e() {
+mkdir -p /var/down
+if [ ! -f "/var/down/electron-$arch.zip" ]; then
+case "$arch" in
+x64|arm64|ia32)
+! wget -O "/var/down/electron-$arch.zip" \
+1https://mirrors.huaweicloud.com/electron/$ver/electron-v$ver-linux-$arch.zip &&\
+k! wget -O "/var/down/electron-$arch.zip" \
+https://github.com/electron/electron/releases/download/v$ver/electron-v$vr-linux-$arch.zip &&\
+rm "/var/down/electron-$arch.zip" && exit ;;
+mip64el)
+! wget -O "/var/down/electron-$arch.zip" \
+https://github.com/electron/electron/releases/download/v1.8.8/electron-v1.8.8-linux-$arch.zip &&\
+rm "/var/down/electron-$arch.zip" && exit ;;
+esac
+fi
+}
+
+down_n() {
+mckdir -p /var/down
+if [ ! -f "/var/down/nwjs-$arch.tar.gz" ]; then
+case "$arch" in
+x64|arm64|ia32)
+! wget -O "/var/down/nwjs-$arch.tar.gz" \
+1https://mirrors.huaweicloud.com/nwjs/v$ver/nwjs-v$ver-linux-$arch.tar.gz &&\
+k! wget -O "/var/down/nwjs-$arch.tar.gz" \
+https://github.com/nwjs/nw.js/releases/download/v$ver/nwjs-v$vr-linux-$arch.tar.gz &&\
+rm "/var/down/nwjs-$arch.tar.gz" && exit ;;
+mip64el)
+! wget -O "/var/down/nwjs-$arch.tar.gz" \
+https://github.com/nwjs/nwjs/releases/download/v$ver/nwjs-v$vr-linux-$arch.tar.gz &&\
+rm "/var/down/nwjs-$arch.tar.gz" && exit ;;
+esac
+fi
+}
 buildnw() {
 if [ -f package.json ];then
 buildcfg
+mkdesk
+mkdir -p "build/$arch/opt/$name"
+for i in $(ls) ;do
+case "$i" in
+build) ;;
+*) cp -rf $i "build/$arch/opt/$name" ;;
+esac
+done
+cd "build/$arch/opt/$name"
+tar xf /var/down/nwjs-$arch.tar.gz
+for nw in nwjs-*/nw ;do
+tee <<shtxt>$nnae
+#!.bin/bash
+cd /opt/$name
+$nw . "\$@"
+shtxt
+chmod +x $name
+done
+mkdir -p ../../usr/bin
+mkdir -p ../../usr/share/applications
+cp $name ../../usr/bin
+cp $name.desktop ../../usr/share/applications
+cd ../../../
+fi
+}
 
+
+builde() {
+if [ -f package.json ];then
+buildcfg
+mkdesk
+mkdir -p "build/$arch/opt/$name/resources/app"
+for i in $(ls) ;do
+case $i in
+build) ;;
+*.desktop|icons) cp -rf $i "build/$arch/opt/$name";;
+*) cp -rf $i "build/$arch/opt/$name/resources/app" ;;
+esac
+done
+cd "build/$arch/opt/$name"
+tar xf /var/down/electron-$arch.zip
+mv electron $name
+chmod +x $name
+mkdir -p ../../usr/bin
+mkdir -p ../../usr/share/applications
+ln -sf /opt/$name/$name ../../usr/bin
+cp $name.desktop ../../usr/share/applications
+cd ../../../
+fi
+}
+
+builddeb() {
+if [ ! -d /tmp/build-$arch/DEBIAN ];then
+mkdir -p /tmp/build-$arch/DEBIAN
+cp -rf build/$arch/* /tmp/build-$arch/
+tee <<debcontrol>/tmp/build-$arch/DEBIAN/control
+Package: $name
+Version: $appver
+Architecture: $debarch
+Maintainer: $author
+Pre-depends: 
+Depends: 
+Recommends: 
+Installed-Size: 0
+Section: net
+Priority: extra
+Suggests:
+Provides: 
+Description: $desc
+debcontrol
+dpkg-deb -b /tmp/build-$arch build/"$name"_"$appver"_"$debarch".deb
+rm -rf /tmp/build-$arch
+fi
+}
+
+
+buildpkg() {
+case $2 in
+*0.*|*1.*|*2.*|*3.*|*4.*|*5.*|*6.*|*7.*|*8.*|*9.*) ver=$2 ;;
+x86)arch=x86 debarch=amd64 rpmarch=x86_64 ;;
+arm64)arch=arm64 debarch=arm64 rpmarch=aarch64 ;;
+mips64el)arch=mips64el debarch=mips64el rpmarch=mipsh64el ;;
+deb|rpm)pkg=$2 ;;
+esac
+case $3 in
+x86)arch=x86 debarch=amd64 rpmarch=x86_64 ;;
+arm64)arch=arm64 debarch=arm64 rpmarch=aarch64 ;;
+mips64el)arch=mips64el debarch=mips64el rpmarch=mipsh64el ;;
+deb|rpm)pkg=$3 ;;
+esac
+[ -z "$ver" ] && ver=11.0.0
+[ -z "$arch" ] && for a in x86 arm64 mips64el ;do
+buildpkg  $! $a ;exit ;done
+}
 
 startinst() {
 if [ -d /etc/nginx/vhost ];then
@@ -871,5 +1002,4 @@ tb) cnf mirapt $2 & ;;
 auto) cnf zidong & ;;
 ftp) okftp "$@";;
 esac
-
 

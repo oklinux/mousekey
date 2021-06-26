@@ -13,9 +13,10 @@ Noipdns() {
 while [ k = k ]; do
 cd /tmp
 [ -f ip6.log ]&& old=$(cat /tmp/ip6.log)
-new=$(ip -6 a| awk '/glabel/')
+new=$(ip -6 a| awk '/global/')
 echo "$new"|while read ipa ip6 ipb ipc;do
-type -p route>/dev/null && route -6 add "$ip6"
+ip -6 route add default via "$ip6"
+type -p route>/dev/null && route -A inet6 add default gw "$ip6"
 done
 if [ -f /etc/noip.cnf ];then
 . /etc/noip.cnf
@@ -46,3 +47,4 @@ pass=$pass
 conf
 ;;
 esac
+u
