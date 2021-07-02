@@ -23,7 +23,7 @@ exit
 fi
 
 #/bindata//
-#!/bin/bash -e
+#!/bin/bash -ex
 
 dns="8.8.8.8
 8.8.4.4
@@ -56,6 +56,8 @@ ln -sf /usr/bin/g++ c++
 fi
 
 cd
+
+
 case $(python3 --version) in
 *3.8.*) ;;
 *) wget -O py.tar.xz https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tar.xz
@@ -71,9 +73,8 @@ esac
 pydir=/usr/bin
 
 export PATH="$HOME/ninja:$HOME/depot_tools:$PATH"
-export ALL_PROXY=socks5://127.0.0.1:10808
-export http_proxy=127.0.0.1:10809
-export https_proxy=127.0.0.1:10809
+#export http_proxy=45.252.63.93:8088
+#export https_proxy=45.252.63.93:8088
 
 if [ ! -f depot_tools/.up-python3 ];then
 yum install git nodejs npm re2c -y
@@ -131,7 +132,7 @@ make
 make install
 echo >.build-done
 fi
-`
+
 cd;if [ ! -d "$HOME/gn" ]; then
 git clone https://gn.googlesource.com/gn ;fi
 cd gn && if [ ! -f .build-done ]; then
@@ -140,28 +141,48 @@ python build/gen.py
 PATH="./:$PATH" ninja -C out/ && echo >.build-done
 fi
 
-mkdir -p ~/nwjs-build
+mkdir -p ~/nw54-build
 
 dosync() {
 #~/depot_tools/gclient config --name=src https://chromium.googlesource.com/chromium/src
-gclient config --name=src https://github.com/nwjs/chromium.src.git@origin/nw52
-mkdir -p ~/nwjs-build/src/content/nw
-cd ~/nwjs-build/src/content/nw
+gclient config --name=src https://github.com/nwjs/chromium.src.git@origin/nw54
+mkdir -p ~/nw54-build/src/content/nw
+cd ~/nw54-build/src/content/nw
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/nw.js
-mkdir -p ~/nwjs-build/src/third_party/node-nw
-cd ~/nwjs-build/src/third_party/node-nw
+mkdir -p ~/nw54-build/src/third_party/node-nw
+cd ~/nw54-build/src/third_party/node-nw
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/node
-mkdir -p ~/nwjs-build/src/v8
-cd ~/nwjs-build/src/v8
+mkdir -p ~/nw54-build/src/v8
+cd ~/nw54-build/src/v8
 ~/depot_tools/gclient config --name=src https://github.com/nwjs/v8
-cd ~/nwjs-build/
+cd ~/nw54-build/
 gclient sync --with_branch_heads
 ./src/build/install-build-deps.sh
 }
 
+dogit() {
+git clone https://github.com/nwjs/chromium.src ./tmp --origin nw54 
+cp -rf tmp/* .
+mkdir -p ~/nw54-build/src/content/nw
+cd ~/nw54-build/src/content/nw
+git clone https://github.com/nwjs/nw.js  ./tmp
+cp -rf tmp/* .
+mkdir -p ~/nw54-build/src/third_party/node-nw
+cd ~/nw54-build/src/third_party/node-nw
+git clone https://github.com/nwjs/node ./tmp
+cp -rf tmp/* .
+mkdir -p ~/nw54-build/src/v8
+cd ~/nw54-build/src/v8
+git clone https://github.com/nwjs/v8 ./tmp
+cp -rf tmp/* .
+cd ~/nw54-build/
+./src/build/install-build-deps.sh
+}
+
 buildnwjs() {
-cd ~/nwjs-build/src
+cd src
 cp "$HOME/gn/out/gn" buildtools/linux64/
+cp "$HOME/gn/out/gn" "$HOME/deepot_tools"
 export GN_CONFIGS="{
 is_debug=false
 is_clang=false
@@ -175,9 +196,15 @@ link_pulseaudio=true
 treat_warnings_as_errors=false
 nwjs_sdk=false
 }"
+ #mv v8 ~/
+ #git clone https://github.com/nwjs/v8.git
  gn gen out/nw --args="${GN_CONFIG[*]}"
-
- ninja -C out/nw nwjs
+ ./build/util/lastchange.py  build/util/LASTCHANGE
+ ./build/util/lastchange.py -s third_party/node-nw/ -o build/util/LASTCHANGE.blink
+ #mkdir -p third_party/llvm-build/Release+Asserts/bin/
+ #ln -sf /root/llvm-project/bin/clang++ third_party/llvm-build/Release+Asserts/bin/clang++
+ grep find-bad-construts -nR 
+ ninja -C out/nw nwjc
  export GYP_DEFINES="target_arch=mips64el debug=false clang=false sysroot=false host_arch=mips64el"
  GYP_CHROMIUM_NO_ACTION=0 ./build/gyp_chromium -I third_party/node-nw/common.gypi -D building_nw=1 third_party/node-nw/node.gyp
  ninja -C out/Release node
@@ -185,11 +212,13 @@ nwjs_sdk=false
 }
 
 
-cd ~/nwjs-build
+cd ~/nw54-build
 echo "是否同步(y/n)？";read yn
 case "$yn" in
 s)bash;exit ;;
 y*|Y*)dosync 
+buildnwjs;;
+g*|G*)dogit
 buildnwjs;;
 *)buildnwjs ;;
 esac
@@ -201,7 +230,7 @@ exit
 
 
 mkdir -p $HOME/nwjs
- cd $HOME/nwj
+ cd $HOME/nwjs
 
 "custom_deps" : {
   "src/third_party/WebKit/LayoutTests": None,
@@ -214,7 +243,7 @@ mkdir -p $HOME/nwjs
  }
 is_debug=false
  is_component_ffmpeg=true
-target_cpu="x64"
+target_cpu="mips64el"
 cd src
 GYP_CHROMIUM_NO_ACTION=0
 ./build/gyp_chromium -I \ third_party/node-nw/common.gypi -D building_nw=1 -D clang=1 third_party/node-nw/node.gyp
