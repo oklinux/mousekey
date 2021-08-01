@@ -17,7 +17,7 @@ edit)nano /etc/okautorunu ;;
 *) [ $(id -u) != "0" ] && sudo bash $0 setup &&  exit
 [ ! -f /etc/init.d/okautorun ]&&\
 cp -rf $0 /etc/init.d/okautorun
-echo "$@" /etc/okautorun
+echo "$@" >>/etc/okautorun
 chmod 777 /etc/init.d/okautorun
 systemctl enable okautorun >/dev/null
 systemctl start okautorun
