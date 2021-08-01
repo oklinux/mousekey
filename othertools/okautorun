@@ -11,14 +11,18 @@
 export PATH=/bin:/sbin:$PATH
 [ -f /etc/okautorun ]&& sh /etc/okautorun &
 
+ [ $(id -u) != "0" ] && sudo bash" $0" "$@" &&  exit
 case "$1" in
 start|restart|status|reload|stop) echo OK;;
-edit)nano /etc/okautorunu ;;
-*) [ $(id -u) != "0" ] && sudo bash $0 setup &&  exit
-[ ! -f /etc/init.d/okautorun ]&&\
-cp -rf $0 /etc/init.d/okautorun
-echo "$@" >>/etc/okautorun
+edit)nano /etc/okautorun ;;
+*)cp -rf $0 /etc/init.d/okautorun
 chmod 777 /etc/init.d/okautorun
+case "$5" in
+/bin*|okasutorun)
+cp -rf $0 /bin/okautorun
+chmod 777 /bin/okautorun ;;
+esac
+echo "$@" >>/etc/okautorun
 systemctl enable okautorun >/dev/null
 systemctl start okautorun
 ;;
