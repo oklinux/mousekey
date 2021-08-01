@@ -1,0 +1,26 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          okkautorun
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      1
+# Short-Description: OKRun
+# Description:       Auto Start Run Server By sjchenkan
+### END INIT INFO
+export PATH=/bin:/sbin:$PATH
+[ -f /etc/okautorun ]&& sh /etc/okautorun &
+
+case "$1" in
+start|restart|status|reload|stop) echo OK;;
+edit)nano /etc/okautorunu ;;
+*) [ $(id -u) != "0" ] && sudo bash $0 setup &&  exit
+[ ! -f /etc/init.d/okautorun ]&&\
+cp -rf $0 /etc/init.d/okautorun
+echo "$@" /etc/okautorun
+chmod 777 /etc/init.d/okautorun
+systemctl enable okautorun >/dev/null
+systemctl start okautorun
+;;
+esac
+
