@@ -180,10 +180,10 @@ case $3 in
 os|apt)
 
 [ -z "$srcs" ] && dpkg-scansources . /dev/null >$3-$2/Sources.new &&\
-mv -f Sources.new Sources && srcs=srcs
+mv -f $3-$2/Sources.new  $3-$2/Sources && srcs=srcs
 
-dpkg-scanpackages --arch "$2" deb-$2 /dev/null >$3-$2/Packages.new
-mv -f  Packages.new Packages
+dpkg-scanpackages --arch "$2" . /dev/null >$3-$2/Packages.new
+mv -f   $3-$2/Packages.new  $3-$2/Packages
 
 cat $3-$2/Packages|gzip -c9>$3-$2/Packages.gz
 cat $3-$2/Sources|gzip -c9>$3-$2/Sources.gz
@@ -243,10 +243,9 @@ if [ -d $JC/apt-amd64 ];then
 yapt $JC amd64 apt
 yapt $JC i386 apt
 else
-yapt $JC mips os
+yapt $JC mips64el os
 yapt $JC amd64 os
-yapt $JC i386 os
-yapt $JC amd64 update ;fi
+yapt $JC i386 os ;fi
 list=/etc/apt/sources.list;;
 app)
 yapt $JC amd64 app
