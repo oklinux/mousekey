@@ -232,6 +232,7 @@ mkdir -p /etc/okfrp
 chmod -R 777 /etc/okfrp
 okfrp 22
 okfrp 5900
+okfrp 3389
 ;;
 esac
 exit
