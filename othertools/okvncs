@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 vncstart() {
@@ -93,7 +92,7 @@ done
 }
 
 okfrp() {
-if type -p frpc ;then
+if type -p frpc 2>&1 >/dev/null ;then
 cnf=/etc/okfrp/okfrp.cnf
 lip="$2"
 [ -z "$lip" ]&& lip=127.0.0.1
@@ -162,9 +161,9 @@ done;done
 
 if [ -d /etc/xdg/autostart ]; then
 desk=/etc/xdg/autostart/okvncs.desktop
-if [ -d /usr/share/autostart ]; then
+elif [ -d /usr/share/autostart ]; then
 desk=/usr/share/autostart/okvncs.desktop
-if [ -d /etc/okffrp ]; then
+elif [ -d /etc/okffrp ]; then
 desk=/etc/okfrp/autostart/okvncs.desktop
 fi
 tee <<desk>$desk
