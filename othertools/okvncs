@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 vncstart() {
@@ -98,7 +99,7 @@ lip="$2"
 [ -z "$lip" ]&& lip=127.0.0.1
 [ -f $cnf ] &&. $cnf
 [ -z "$server" ] && echo "请输入‘服务器IP 服务器端口  起始转发端口’"&& read server serverport remote_port
-[ -z "$remote_port" ]&& okfrp
+[ -z "$remote_port" ]&& servr="" && okfrp
 [ !  -f "$cnf" ]&& tee <<conf>$cnf
 server=$server
 serverport=$serverport
@@ -159,8 +160,14 @@ for a in apt-get apt yum dnf ;do
 type -p $a && sudo $a install $d -y >/dev/null && break
 done;done
 
+if [ -d /etc/xdg/autostart ]; then
+desk=/etc/xdg/autostart/okvncs.desktop
 if [ -d /usr/share/autostart ]; then
-tee <<desk>/usr/share/autostart/okvncs.desktop
+desk=/usr/share/autostart/okvncs.desktop
+if [ -d /etc/okffrp ]; then
+desk=/etc/okfrp/autostart/okvncs.desktop
+fi
+tee <<desk>$desk
 [Desktop Entry]
 Exec=x0vncserver -rfbport 5900 -PasswordFile /etc/okvnc.pass &
 GenericName=VNCServer
@@ -169,7 +176,6 @@ StartupNotify=false
 Terminal=false
 Type=Application
 desk
-fi
 
 tee <<service>/etc/init.d/okvncs-d
 #!/bin/bash
