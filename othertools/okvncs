@@ -92,7 +92,7 @@ done
 }
 
 okfrp() {
-if type -p frpc 2>&1 >/dev/null ;then
+if type -p frpc $null ;then
 cnf=/etc/okfrp/okfrp.cnf
 lip="$2"
 [ -z "$lip" ]&& lip=127.0.0.1
@@ -154,9 +154,9 @@ okvncs) ;;
 */bin/okvncs) ;;
 *)
 
-type -p dpkg && for d in $deb ;do
+type -p dpkg $null && for d in $deb ;do
 for a in apt-get apt yum dnf ;do
-type -p $a && sudo $a install $d -y >/dev/null && break
+type -p $a $null && sudo $a install $d -y >/dev/null && break
 done;done
 
 if [ -d /etc/xdg/autostart ]; then
@@ -253,14 +253,17 @@ fi
 xrdp() {
 tee <<xxrdp>~/.Xsession
 #!/bin/bash
+unset SESSION_NANAGER
+unset DBUS_SESSION_BUS_ADDRESS
 
-for i in startxfce4 startkde gnome-session konsole ;do
+for i in startxfce4 mate-session startkde gnome-session konsole ;do
 type -p \$i && \$i && break
 done
 xxrdp
 if type -p systemctl ;then
 sudo systemctl enable xrdp ;fi
 }
+null="2>/dev/null >/dev/null"
 
 case "$1" in
 ins)inst ;;
@@ -273,5 +276,4 @@ auto) autosrv & ;;
 *)inst
 sudo -u vncuser  "$0" run 2>&1 >/dev/null &;;
 esac
-
 
