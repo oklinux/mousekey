@@ -56,7 +56,7 @@ dq=$(pwd)
 debmc=""
 mkdir -p $ML/$JC/.look
 cd $ML/$JC/.look
-sd=/dev/shm/okapps-list.lokk
+sd=/dev/shm/okapps-list.look
 [ ! -f $sd ]&&rm ./*Packages ./*.deb -rf
 echo "sleep 85533;rm $sd">$sd;sh $sd &
 echo "$JX"|while read ja jb jc jd je;do
@@ -69,17 +69,23 @@ fi;done
 for i in $XZAPP ;do
 xzdeb1 $i
 done
-echo >zzzzzzz.down
 for c in *.down ;do
-b=$(echo "$c"|sed -e 's/_[0-9].*_//g')
-b=$(echo "$b"|sed -e 's/_[0-9].*-[0-9]\.//g')
-[ -f "$c" ] && if [ "$b" != "$debmc" -a ! -z "$debmc" ];then
-sh ./$e &
-sleep 2
-elif [ "$b" == "$debmc" -a ! -f "$b" ];then
-rm "$e";fi
-e=$c
-debmc=$b
+case "$c" in
+*_*)
+b=$(echo "$c"|sed -e 's/_.*_//g')
+b=$(echo "$b"|sed -e 's/_.*.\.deb//g')
+mv "$c" "$b" ;;
+esac
+done
+down=1
+for c in *.down ;do
+cat $e >>down-$down.sh
+down=$(expr $down + 1)
+[ "$down" == 6 ]&& down=1
+done
+for c in down*.sh ;do
+echo "rm $c">>$c
+sh "$c" &
 done
 cd "$dq"
 }
@@ -137,12 +143,13 @@ esac
 done;;
 deb)
 echo $deblb >>$ML/.DEB.LIST
+cd $ML/$JC/.look
 for d in $deblb ;do
 case "$d" in
 *_ppc*|*_armhf*);;
 http*)c=$(basename $d)
 if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
-echo "[ ! -f \"$c\" ] && wget -c -N \"$d\" && $0 $c && rm $c.down">$c.down
+echo "[ ! -f \"$c\" ] && wget -c -N \"$d\" && $0 $c">$c.down
 echo >"$c.look";fi;;
 *)c=$(basename $d)
 for i in $nodown;do
@@ -151,7 +158,7 @@ $i*)echo >$c.look ;;
 esac
 done
 if [ ! -f "$ML/$JC/.look/$c.look" ] ;then
-echo "[ ! -f \"$c\" ] && wget -c -N \"$ic$d\" && $0 $c && rm $c.down">$c.down
+echo "[ ! -f \"$c\" ] && wget -c -N \"$ic$d\" && $0 $c">$c.down
 echo >"$c.look";fi;;
 esac
 done
@@ -332,7 +339,7 @@ name=$(echo $(dpkg-deb --info $a|grep "Package:"|sed -e 's/.*://g'|tr -d '\r')|s
 dpkg-deb -R "$a" tmp-$$
 for cc in $(find tmp-$$ -name *.desktop) ;do
 icon=$(basename $(cat "$cc"|grep Icon|sed -e 's/Icon=//g'))
-[ ! -z "$icon" ] &&for picon in $(find tmp-$$/ -name $icon* ) ;do
+[ ! -z "$icon" ] &&for picon in $(find tmp-$$/ -name "$icon" ) ;do
 case "$picon" in
 *.xpm)cp "$picon" "$ML/$JC/icons/$name.xpn";;
 *.png)cp "$picon" "$ML/$JC/icons/$name.png";;

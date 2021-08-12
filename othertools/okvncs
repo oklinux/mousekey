@@ -142,9 +142,15 @@ frpc -c /etc/okfrp/frpc.cnf >/tmp/okfrp.log &
 fi
 fi
 }
+doapt() {
+type -p dpkg $null && for d in $deb ;do
+for a in apt-get apt yum dnf ;do
+type -p $a $null && sudo $a install $d -y >/dev/null && break
+done;done
+}
 
 inst() {
-deb="vnc4server firefox konsole xrdp  xrdp-pulseaudio*"
+deb="vnc4server konsole"
 if [ $(id -u) != 0 ];then
 sudo bash "$0" "$@"
 exit;fi
@@ -153,12 +159,8 @@ case "$0" in
 okvncs) ;;
 */bin/okvncs) ;;
 *)
-
-type -p dpkg $null && for d in $deb ;do
-for a in apt-get apt yum dnf ;do
-type -p $a $null && sudo $a install $d -y >/dev/null && break
-done;done
-
+doapt
+if type -p x0vncserver $null ;then
 if [ -d /etc/xdg/autostart ]; then
 desk=/etc/xdg/autostart/okvncs.desktop
 elif [ -d /usr/share/autostart ]; then
@@ -175,6 +177,7 @@ StartupNotify=false
 Terminal=false
 Type=Application
 desk
+fi
 
 tee <<service>/etc/init.d/okvncs-d
 #!/bin/bash
@@ -256,10 +259,13 @@ tee <<xxrdp>~/.Xsession
 unset SESSION_NANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 
-for i in startxfce4 mate-session startkde gnome-session konsole ;do
+or i in startxfce4 mate-session startkde gnome-session konsole ;do
 type -p \$i && \$i && break
 done
 xxrdp
+deb="xrdp xrdp-pulseaudio*"
+doapt
+
 if type -p systemctl ;then
 sudo systemctl enable xrdp ;fi
 }
